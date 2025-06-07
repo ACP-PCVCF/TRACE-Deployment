@@ -2,14 +2,14 @@
 set -e
 
 NAMESPACE="proving-system"
-KIND_CLUSTER="kind-cluster"
+KIND_CLUSTER_NAME="kind"
 
-# Check if kind cluster exists
-if ! kind get clusters | grep -q "$KIND_CLUSTER"; then
-  echo "Creating Kind cluster named '$KIND_CLUSTER'..."
-  kind create cluster --name "$KIND_CLUSTER"
+echo "Checking if kind cluster '$KIND_CLUSTER_NAME' exists..."
+if ! kind get clusters | grep -q "^$KIND_CLUSTER_NAME$"; then
+  echo "Creating kind cluster '$KIND_CLUSTER_NAME'..."
+  kind create cluster --name $KIND_CLUSTER_NAME
 else
-  echo "Kind cluster '$KIND_CLUSTER' already exists."
+  echo "Kind cluster '$KIND_CLUSTER_NAME' already exists."
 fi
 
 echo "Checking if Camunda Helm repo is added..."
@@ -17,7 +17,7 @@ if ! helm repo list | grep -q camunda; then
   echo "Adding Camunda Helm repo..."
   helm repo add camunda https://helm.camunda.io
 else
-  echo "Camunda Helm repo already present."
+  echo "Camunda Helm repo already added."
 fi
 
 echo "Updating Helm repos..."
@@ -30,7 +30,7 @@ if ! helm list -n $NAMESPACE | grep -q camunda; then
     -n $NAMESPACE --create-namespace \
     -f ./camunda-platform/camunda-platform-core-kind-values.yaml
 else
-  echo "Camunda already installed in $NAMESPACE."
+  echo "Camunda is already installed in $NAMESPACE."
 fi
 
 echo "Waiting for Camunda pods to be created..."
@@ -39,26 +39,27 @@ until kubectl get pods -n $NAMESPACE 2>/dev/null | grep -q "camunda"; do
   sleep 2
 done
 
-echo "Waiting for Camunda pods to be ready..."
-kubectl wait --for=condition=ready pod --all -n $NAMESPACE --timeout=300s
+echo "Waiting for all Camunda pods to be ready..."
+if ! kubectl wait --for=condition=ready pod --all -n $NAMESPACE --timeout=400s; then
+  echo "ERROR: Timeout waiting for Camunda pods to become ready"
+  exit 1
+fi
 
-echo "Building Docker images..."
-docker build -t sensor-data-service:latest ./sensor-data-service 
-docker build -t camunda-service:latest ./camunda-service
-# docker build -t proving-service:latest ./proving-service
+echo "Checking if Kafka is already installed..."
+if ! helm list -n $NAMESPACE | grep -q kafka; then
+  echo "Installing Kafka in namespace $NAMESPACE..."
+  helm install kafka bitnami/kafka \
+    --namespace $NAMESPACE \
+    --create-namespace \
+    -f kafka-service/kafka-values.yaml
+else
+  echo "Kafka is already installed in $NAMESPACE."
+fi
 
-echo "Loading images into Kind cluster..."
-kind load docker-image sensor-data-service:latest --name "$KIND_CLUSTER"
-kind load docker-image camunda-service:latest --name "$KIND_CLUSTER"
-# kind load docker-image proving-service:latest --name "$KIND_CLUSTER"
+echo "Waiting for Kafka pods to be ready..."
+if ! kubectl wait --for=condition=Ready pod -l app.kubernetes.io/name=kafka -n $NAMESPACE --timeout=300s; then
+  echo "ERROR: Timeout waiting for Kafka pods to become ready"
+  exit 1
+fi
 
-echo "Deploying services to Kubernetes..."
-kubectl apply -f ./sensor-data-service/k8s/sensor-data-service.yaml -n $NAMESPACE
-kubectl apply -f ./camunda-service/k8s/camunda-service.yaml -n $NAMESPACE
-# kubectl apply -f ./proving-service/k8s/proving-service-deployment.yaml -n $NAMESPACE
-
-echo "Waiting for service pods to be ready..."
-kubectl wait --for=condition=ready pod --all -n $NAMESPACE --timeout=180s
-
-echo "All services deployed in '$NAMESPACE'. Current pods:"
-kubectl get pods -n $NAMESPACE
+echo "Execute Kafka topics job..

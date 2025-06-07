@@ -40,7 +40,7 @@ Then open your browser at: http://localhost:8081
 ### 4. Deploy BPMN Models from Camunda Modeler
 In the Camunda Modeler:
 
-1. Open your BPMN files.
+1. Open your BPMN files (origin.bpmn, tsp.bpmn, Case_1 Kopie.bpmn, Case_2 Kopie.bpmn, Case_3 Kopie.bpmn).
 
 2. Select Camunda 8 → Self-Managed.
 
@@ -51,6 +51,10 @@ In the Camunda Modeler:
 - Authentication: None
 
 4. Click Deploy Current Diagram.
+
+5. Start process in Camunda Modeler.
+
+6. Check progress in Camunda Operate (http://localhost:8081/operate) using username: demo and password: demo.
 
    
 ## Rollout Services (repeatable)

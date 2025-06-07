@@ -42,20 +42,52 @@ until kubectl get pods -n $NAMESPACE 2>/dev/null | grep -q "camunda"; do
 done
 
 echo "Waiting for all Camunda pods to be ready..."
-kubectl wait --for=condition=ready pod --all -n $NAMESPACE --timeout=300s
+if ! kubectl wait --for=condition=ready pod --all -n $NAMESPACE --timeout=400s; then
+  echo "ERROR: Timeout waiting for Camunda pods to become ready"
+  exit 1
+fi
+
+echo "Checking if Kafka is already installed..."
+if ! helm list -n $NAMESPACE | grep -q kafka; then
+  echo "Installing Kafka in namespace $NAMESPACE..."
+  helm install kafka bitnami/kafka \
+    --namespace $NAMESPACE \
+    --create-namespace \
+    -f kafka-service/kafka-values.yaml
+else
+  echo "Kafka is already installed in $NAMESPACE."
+fi
+
+echo "Waiting for Kafka pods to be ready..."
+if ! kubectl wait --for=condition=Ready pod -l app.kubernetes.io/name=kafka -n $NAMESPACE --timeout=300s; then
+  echo "ERROR: Timeout waiting for Kafka pods to become ready"
+  exit 1
+fi
+
+echo "Execute Kafka topics job..."
+kubectl apply -f kafka-service/kafka-topic-job.yaml
+
+echo "Waiting for Kafka topics job to be done..."
+if ! kubectl wait --for=condition=complete job/create-kafka-topics -n $NAMESPACE --timeout=120s; then
+  echo "ERROR: Timeout waiting for Kafka topics job to complete"
+  exit 1
+fi
 
 echo "Building Docker images..."
-#docker build -t sensor-data-service:latest ./sensor-data-service 
-#docker build -t camunda-service:latest ./camunda-service
-# docker build --platform=linux/amd64 -t proving-service:latest ./proving-service
+docker build -t sensor-data-service:latest ./sensor-data-service 
+docker build -t camunda-service:latest ./camunda-service
+docker build --platform=linux/amd64 -t proving-service:latest ./proving-service
 
 echo "Deploying services to Kubernetes..."
-#kubectl apply -f ./sensor-data-service/k8s/sensor-data-service.yaml -n $NAMESPACE
-#kubectl apply -f ./camunda-service/k8s/camunda-service.yaml -n $NAMESPACE
-# kubectl apply -f ./proving-service/k8s/proving-service-deployment.yaml -n $NAMESPACE
+kubectl apply -f ./sensor-data-service/k8s/sensor-data-service.yaml -n $NAMESPACE
+kubectl apply -f ./camunda-service/k8s/camunda-service.yaml -n $NAMESPACE
+kubectl apply -f ./proving-service/k8s/proving-service.yaml -n $NAMESPACE
 
 echo "Waiting for all deployed service pods to be ready..."
-kubectl wait --for=condition=ready pod --all -n $NAMESPACE --timeout=180s
+if ! kubectl wait --for=condition=ready pod --all -n $NAMESPACE --timeout=300s; then
+  echo "ERROR: Timeout waiting for service pods to become ready"
+  exit 1
+fi
 
 echo "All services deployed successfully to namespace '$NAMESPACE'."
 kubectl get pods -n $NAMESPACE
