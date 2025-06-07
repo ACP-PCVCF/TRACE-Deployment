@@ -22,6 +22,14 @@ else
   echo "Camunda Helm repo already added."
 fi
 
+echo "Checking if Bitnami Helm repo is added..."
+if ! helm repo list | grep -q bitnami; then
+  echo "Adding Bitnami Helm repo..."
+  helm repo add bitnami https://charts.bitnami.com/bitnami
+else
+  echo "Bitnami Helm repo already added."
+fi
+
 echo "Updating Helm repos..."
 helm repo update
 
