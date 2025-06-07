@@ -22,7 +22,7 @@ docker build --platform=linux/amd64 -t proving-service:latest ./proving-service
 echo "Applying updated manifests..."
 kubectl apply -f ./sensor-data-service/k8s/sensor-data-service.yaml -n $NAMESPACE
 kubectl apply -f ./camunda-service/k8s/camunda-service.yaml -n $NAMESPACE
-kubectl apply -f ./proving-service/k8s/proving-service-deployment.yaml -n $NAMESPACE
+kubectl apply -f ./proving-service/k8s/proving-service.yaml -n $NAMESPACE
 
 echo "Triggering rollout restarts..."
 kubectl rollout restart deployment/sensor-data-service -n $NAMESPACE
