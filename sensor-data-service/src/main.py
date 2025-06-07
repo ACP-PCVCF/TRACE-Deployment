@@ -1,78 +1,14 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
-from typing import Optional
-import random, uuid, json, os, base64
-import logging
+import random
 
-from cryptography.hazmat.primitives import serialization, hashes
-from cryptography.hazmat.primitives.asymmetric import padding
-
-
-# Logging Setup
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("sensor-data-service")
-
+from models import TceSensorData, SensorRequest, Distance, SensorData
+from crypto_utils import load_private_key, sign_data
+from config import logger, SENSOR_IDS
 
 # FastAPI App Init
-
 app = FastAPI()
 
-
-# Models
-
-class Distance(BaseModel):
-    actual: Optional[float] = None
-    gcd: Optional[float] = None
-    sfd: Optional[float] = None
-
-class SensorData(BaseModel):
-    distance: Distance
-
-class TceSensorData(BaseModel):
-    tceId: str
-    camundaProcessInstanceKey: str
-    camundaActivityId: str
-    sensorkey: str
-    signedSensorData: str
-    sensorData: SensorData
-
-class SensorRequest(BaseModel):
-    shipment_id: str
-    tceId: str
-    camundaProcessInstanceKey: str
-    camundaActivityId: str
-
-
-# Settings
-
-SENSOR_IDS = ["sensor1", "sensor2", "sensor3", "sensor4", "sensor5"]
-KEY_DIR = "./keys"
-
-
-# Helper Functions
-
-def load_private_key(sensor_id: str):
-    path = os.path.join(KEY_DIR, f"{sensor_id}_private.pem")
-    logger.info(f"Loading private key for sensor: {sensor_id}")
-    with open(path, "rb") as f:
-        return serialization.load_pem_private_key(f.read(), password=None)
-
-def sign_data(data: dict, private_key) -> str:
-    message = json.dumps(data, sort_keys=True).encode("utf-8")
-    signature = private_key.sign(
-        message,
-        padding.PSS(
-            mgf=padding.MGF1(hashes.SHA256()),
-            salt_length=padding.PSS.MAX_LENGTH
-        ),
-        hashes.SHA256()
-    )
-    return base64.b64encode(signature).decode("utf-8")
-
-
 # POST Endpoint
-
 @app.post("/api/v1/sensor-data", response_model=TceSensorData)
 def post_sensor_data(req: SensorRequest):
     logger.info(f"Incoming request for shipment: {req.shipment_id}")
