@@ -84,6 +84,11 @@ docker build -t sensor-data-service:latest ./sensor-data-service
 docker build -t camunda-service:latest ./camunda-service
 docker build --platform=linux/amd64 -t proving-service:latest ./proving-service
 
+echo "Loading Docker images into kind cluster..."
+kind load docker-image sensor-data-service:latest --name $KIND_CLUSTER_NAME
+kind load docker-image camunda-service:latest --name $KIND_CLUSTER_NAME
+kind load docker-image proving-service:latest --name $KIND_CLUSTER_NAME
+
 echo "Deploying services to Kubernetes..."
 kubectl apply -f ./sensor-data-service/k8s/sensor-data-service.yaml -n $NAMESPACE
 kubectl apply -f ./camunda-service/k8s/camunda-service.yaml -n $NAMESPACE
