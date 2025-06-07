@@ -70,4 +70,24 @@ if ! kubectl wait --for=condition=Ready pod -l app.kubernetes.io/name=kafka -n $
   exit 1
 fi
 
-echo "Execute Kafka topics job..
+echo "Execute Kafka topics job..."
+kubectl apply -f kafka-service/kafka-topic-job.yaml
+
+echo "Waiting for Kafka topics job to be done..."
+if ! kubectl wait --for=condition=complete job/create-kafka-topics -n $NAMESPACE --timeout=120s; then
+  echo "ERROR: Timeout waiting for Kafka topics job to complete"
+  exit 1
+fi
+
+echo "Building Docker images..."
+docker build -t sensor-data-service:latest ./sensor-data-service 
+docker build -t camunda-service:latest ./camunda-service
+docker build --platform=linux/amd64 -t proving-service:latest ./proving-service
+
+echo "Deploying services to Kubernetes..."
+kubectl apply -f ./sensor-data-service/k8s/sensor-data-service.yaml -n $NAMESPACE
+kubectl apply -f ./camunda-service/k8s/camunda-service.yaml -n $NAMESPACE
+kubectl apply -f ./proving-service/k8s/proving-service.yaml -n $NAMESPACE
+
+echo "All services deployed successfully to namespace '$NAMESPACE'."
+kubectl get pods -n $NAMESPACE
