@@ -4,7 +4,7 @@ import base64
 
 from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.asymmetric import padding
-from config import logger, KEY_DIR
+from utils.config import logger, KEY_DIR
 
 def load_private_key(sensor_id: str):
     path = os.path.join(KEY_DIR, f"{sensor_id}_private.pem")

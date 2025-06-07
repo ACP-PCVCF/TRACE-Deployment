@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 import random
 
-from models import TceSensorData, SensorRequest, Distance, SensorData
-from crypto_utils import load_private_key, sign_data
-from config import logger, SENSOR_IDS
+from utils.models import TceSensorData, SensorRequest, Distance, SensorData
+from utils.crypto_utils import load_private_key, sign_data
+from utils.config import logger, SENSOR_IDS
 
 # FastAPI App Init
 app = FastAPI()
