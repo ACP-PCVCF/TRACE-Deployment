@@ -18,7 +18,7 @@ cd integration-repo
 ### 2. Run setup
 This will start the cluster and install Camunda (choose Kind or Minikube script folder):
 ```bash
-./setup.sh
+./scripts/minikube/setup.sh
 ```
 You might need to make the script executable first by using ```chmod +x setup.sh```.
 
@@ -61,7 +61,7 @@ In the Camunda Modeler:
 After any changes to your services or code, simply run (choose Kind or Minikube script folder):
 
 ```bash
-./rollout.sh
+./scripts/minikube/rollout.sh
 ```
 You might need to make the script executable first by using ```chmod +x rollout.sh```.
 
@@ -84,7 +84,7 @@ kubectl logs deployment/proving-service -n proving-system
 If you want to destroy your cluster, delete all your services/deployments and stop Minikube/Kind, run:
 
 ```bash 
-./cleanup.sh
+./scripts/minikube/cleanup.sh
 ```
 You might need to make the script executable first by using ```chmod +x cleanup.sh```.
 
