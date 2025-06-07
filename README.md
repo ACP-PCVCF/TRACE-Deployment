@@ -88,7 +88,7 @@ You might need to make the script executable first by using ```chmod +x cleanup.
 ## Git Subtrees – How We Use Them
 This repository integrates multiple service repositories using Git Subtrees.
 
-Each service (i.e., sensor-data-service, camunda-service, and proofing-service) lives in its own dedicated Git repository, but is pulled into this integration repository via subtree under its respective folder.
+Each service (i.e., sensor-data-service, camunda-service, and proving-service) lives in its own dedicated Git repository, but is pulled into this integration repository via subtree under its respective folder.
 This allows us to deploy and test all services together without changing how each service is developed.
 
 ### Developer Workflow
@@ -105,8 +105,8 @@ git subtree pull --prefix=sensor-data-service sensor-data-service main --squash
 git fetch camunda-service
 git subtree pull --prefix=camunda-service camunda-service main --squash
 
-git fetch proofing-service
-git subtree pull --prefix=proofing-service proofing-service main --squash
+git fetch proving-service
+git subtree pull --prefix=proving-service proving-service main --squash
 ```
 Repeat as needed for the services you want to update.
 
@@ -115,10 +115,10 @@ This keeps the integration repository up to date with the latest service code, a
 ### Different branch versions
 Additionally, since subtrees reference a specific branch of the original service repository, you can choose which branch to track for each service.
 
-For example, the integration repository may pull from the main branch of sensor-data-service, but from a develop branch of proofing-service, depending on your integration or staging needs:
+For example, the integration repository may pull from the main branch of sensor-data-service, but from a develop branch of proving-service, depending on your integration or staging needs:
 
 ```bash
 git subtree pull --prefix=sensor-data-service sensor-data-service main --squash
-git subtree pull --prefix=proofing-service proofing-service develop --squash
+git subtree pull --prefix=proving-service proving-service develop --squash
 ```
 Please use different branches in this integration repository if you need additional branch combinations that don't involve all main branches.
