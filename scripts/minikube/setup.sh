@@ -83,11 +83,5 @@ kubectl apply -f ./sensor-data-service/k8s/sensor-data-service.yaml -n $NAMESPAC
 kubectl apply -f ./camunda-service/k8s/camunda-service.yaml -n $NAMESPACE
 kubectl apply -f ./proving-service/k8s/proving-service.yaml -n $NAMESPACE
 
-echo "Waiting for all deployed service pods to be ready..."
-if ! kubectl wait --for=condition=ready pod --all -n $NAMESPACE --timeout=300s; then
-  echo "ERROR: Timeout waiting for service pods to become ready"
-  exit 1
-fi
-
 echo "All services deployed successfully to namespace '$NAMESPACE'."
 kubectl get pods -n $NAMESPACE
