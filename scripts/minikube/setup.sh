@@ -1,7 +1,8 @@
 #!/bin/bash
 set -e
 
-NAMESPACE="proving-system"
+NAMESPACE1="proving-system"
+NAMESPACE2="verifier-system"
 
 echo "Checking if Minikube is running..."
 if ! minikube status | grep -q "Running"; then
@@ -33,41 +34,49 @@ fi
 echo "Updating Helm repos..."
 helm repo update
 
+echo "Checking if namespace '$NAMESPACE2' exists..."
+if ! kubectl get namespace "$NAMESPACE2" >/dev/null 2>&1; then
+  echo "Adding namespace '$NAMESPACE2'"
+  kubectl create namespace "$NAMESPACE2"
+else
+  echo "Namespace '$NAMESPACE2' already exists."
+fi
+
 echo "Checking if Camunda is already installed..."
-if ! helm list -n $NAMESPACE | grep -q camunda; then
-  echo "Installing Camunda in namespace $NAMESPACE..."
+if ! helm list -n $NAMESPACE1 | grep -q camunda; then
+  echo "Installing Camunda in NAMESPACE1 $NAMESPACE1..."
   helm install camunda camunda/camunda-platform \
-    -n $NAMESPACE --create-namespace \
+    -n $NAMESPACE1 --create-namespace \
     -f ./camunda-platform/camunda-platform-core-kind-values.yaml
 else
-  echo "Camunda is already installed in $NAMESPACE."
+  echo "Camunda is already installed in $NAMESPACE1."
 fi
 
 echo "Waiting for Camunda pods to be created..."
-until kubectl get pods -n $NAMESPACE 2>/dev/null | grep -q "camunda"; do
+until kubectl get pods -n $NAMESPACE1 2>/dev/null | grep -q "camunda"; do
   echo "Still waiting for Camunda pods..."
   sleep 2
 done
 
 echo "Waiting for all Camunda pods to be ready..."
-if ! kubectl wait --for=condition=ready pod --all -n $NAMESPACE --timeout=400s; then
+if ! kubectl wait --for=condition=ready pod --all -n $NAMESPACE1 --timeout=400s; then
   echo "ERROR: Timeout waiting for Camunda pods to become ready"
   exit 1
 fi
 
 echo "Checking if Kafka is already installed..."
-if ! helm list -n $NAMESPACE | grep -q kafka; then
-  echo "Installing Kafka in namespace $NAMESPACE..."
+if ! helm list -n $NAMESPACE1 | grep -q kafka; then
+  echo "Installing Kafka in NAMESPACE1 $NAMESPACE1..."
   helm install kafka bitnami/kafka \
-    --namespace $NAMESPACE \
+    --namespace $NAMESPACE1 \
     --create-namespace \
     -f kafka-service/kafka-values.yaml
 else
-  echo "Kafka is already installed in $NAMESPACE."
+  echo "Kafka is already installed in $NAMESPACE1."
 fi
 
 echo "Waiting for Kafka pods to be ready..."
-if ! kubectl wait --for=condition=Ready pod -l app.kubernetes.io/name=kafka -n $NAMESPACE --timeout=300s; then
+if ! kubectl wait --for=condition=Ready pod -l app.kubernetes.io/name=kafka -n $NAMESPACE1 --timeout=300s; then
   echo "ERROR: Timeout waiting for Kafka pods to become ready"
   exit 1
 fi
@@ -76,7 +85,7 @@ echo "Execute Kafka topics job..."
 kubectl apply -f kafka-service/kafka-topic-job.yaml
 
 echo "Waiting for Kafka topics job to be done..."
-if ! kubectl wait --for=condition=complete job/create-kafka-topics -n $NAMESPACE --timeout=120s; then
+if ! kubectl wait --for=condition=complete job/create-kafka-topics -n $NAMESPACE1 --timeout=120s; then
   echo "ERROR: Timeout waiting for Kafka topics job to complete"
   exit 1
 fi
@@ -85,11 +94,14 @@ echo "Building Docker images..."
 docker build -t sensor-data-service:latest ./sensor-data-service 
 docker build -t camunda-service:latest ./camunda-service
 docker build --platform=linux/amd64 -t proving-service:latest ./proving-service
+docker build -t verifier-service:latest ./verifier-service
 
 echo "Deploying services to Kubernetes..."
-kubectl apply -f ./sensor-data-service/k8s/sensor-data-service.yaml -n $NAMESPACE
-kubectl apply -f ./camunda-service/k8s/camunda-service.yaml -n $NAMESPACE
-kubectl apply -f ./proving-service/k8s/proving-service.yaml -n $NAMESPACE
+kubectl apply -f ./sensor-data-service/k8s/sensor-data-service.yaml -n $NAMESPACE1
+kubectl apply -f ./camunda-service/k8s/camunda-service.yaml -n $NAMESPACE1
+kubectl apply -f ./proving-service/k8s/proving-service.yaml -n $NAMESPACE1
+kubectl apply -f ./verifier-service/k8s/verifier-service.yaml -n $NAMESPACE2
 
-echo "All services deployed successfully to namespace '$NAMESPACE'."
-kubectl get pods -n $NAMESPACE
+echo "All services deployed successfully to namespaces '$NAMESPACE1' and '$NAMESPACE2'."
+kubectl get pods -n $NAMESPACE1
+kubectl get pods -n $NAMESPACE2

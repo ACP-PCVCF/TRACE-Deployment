@@ -75,9 +75,11 @@ This script:
 
 ```bash
 kubectl get pods -n proving-system
+kubectl get pods -n verifier-system
 kubectl logs deployment/camunda-service -n proving-system
 kubectl logs deployment/sensor-data-service -n proving-system
 kubectl logs deployment/proving-service -n proving-system
+kubectl logs deployment/verifier-service -n verifier-system
 ```
 
 ## Cleanup
@@ -111,6 +113,9 @@ git subtree pull --prefix=camunda-service camunda-service main --squash
 
 git fetch proving-service
 git subtree pull --prefix=proving-service proving-service main --squash
+
+git fetch verifier-service
+git subtree pull --prefix=verifier-service verifier-service main --squash
 ```
 Repeat as needed for the services you want to update.
 
