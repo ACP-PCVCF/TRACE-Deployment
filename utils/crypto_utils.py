@@ -17,8 +17,8 @@ def load_private_key(path: str):
 def get_all_private_key_paths():
     return [os.path.join(KEY_DIR, f) for f in os.listdir(KEY_DIR) if f.endswith("_private.pem")]
 
-def sign_data(data: dict, private_key) -> str:
-    message = json.dumps(data, sort_keys=True).encode("utf-8")
+def sign_data(data: str, private_key) -> str:
+    message = data.encode("utf-8")
     signature = private_key.sign(
         message,
         padding.PKCS1v15(),
