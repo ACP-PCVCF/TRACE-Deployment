@@ -55,7 +55,7 @@ def post_sensor_data(req: SensorRequest):
         camundaActivityId=req.camundaActivityId,
         sensorkey=public_key_pem,  
         signedSensorData=signature,
-        sensorData=sensor_data,
+        sensorData=sensor_data_dump,
         salt=salt,
         commitment=commitment
     )
