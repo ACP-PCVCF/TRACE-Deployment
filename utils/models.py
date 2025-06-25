@@ -15,7 +15,7 @@ class TceSensorData(BaseModel):
     camundaActivityId: str
     sensorkey: str
     signedSensorData: str
-    sensorData: str
+    sensorData: SensorData
     salt: str
     commitment: str
 
