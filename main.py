@@ -4,8 +4,9 @@ from cryptography.hazmat.primitives import serialization
 
 import json
 
+
 from utils.models import TceSensorData, SensorRequest, Distance, SensorData
-from utils.crypto_utils import load_private_key, sign_data, get_all_private_key_paths, generate_keys_if_missing
+from utils.crypto_utils import load_private_key, sign_data, get_all_private_key_paths, generate_keys_if_missing, generate_hash, generate_random_string
 from utils.config import logger
 
 
@@ -31,14 +32,19 @@ def post_sensor_data(req: SensorRequest):
     sensor_data = SensorData(distance=Distance(actual=distance_val))
     logger.info(f"Sensor data:{sensor_data}")
     sensor_data_dump = json.dumps(sensor_data.dict(), sort_keys=True, separators=(',', ':'))
+    salt = generate_random_string(32)
+    commitment = generate_hash(sensor_data_dump + salt)
+    #sensor_data_dump_hash = generate_hash(sensor_data_dump)
+    #signature = sign_data(sensor_data_dump, private_key)
+
     logger.info(f"Sensor data dump:{sensor_data_dump}")
 
-    # sign data
-    signature = sign_data(sensor_data_dump, private_key)
+    signature = sign_data(commitment, private_key)
     public_key_pem = public_key.public_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PublicFormat.SubjectPublicKeyInfo
     ).decode("utf-8")
+    #hash = generate_hash(sensor_data_dump)
 
     logger.info("Sensor data signed successfully.")
     logger.info("Returning signed sensor data...")
@@ -49,5 +55,7 @@ def post_sensor_data(req: SensorRequest):
         camundaActivityId=req.camundaActivityId,
         sensorkey=public_key_pem,  
         signedSensorData=signature,
-        sensorData=sensor_data_dump
+        sensorData=sensor_data_dump,
+        salt=salt,
+        commitment=commitment
     )
