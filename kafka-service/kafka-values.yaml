@@ -18,3 +18,8 @@ advertisedListeners:
     name: PLAINTEXT
     address: kafka.proving-system.svc.cluster.local
     port: 9092
+
+
+broker:
+  config:
+    message.max.bytes: 52428800
