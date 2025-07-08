@@ -76,11 +76,29 @@ This script:
 ```bash
 kubectl get pods -n proving-system
 kubectl get pods -n verifier-system
+kubectl get pods -n pcf-registry
 kubectl logs deployment/camunda-service -n proving-system
 kubectl logs deployment/sensor-data-service -n proving-system
 kubectl logs deployment/proving-service -n proving-system
 kubectl logs deployment/verifier-service -n verifier-system
+kubectl logs deployment/pcf-registry -n pcf-registry
 ```
+
+## PCF-Registry Service
+
+After deployment, you can access the PCF-Registry services:
+
+```bash
+# Forward the HTTP API port
+kubectl port-forward svc/pcf-registry 5002:5002 -n pcf-registry
+
+# Forward the gRPC port
+kubectl port-forward svc/pcf-registry 50052:50052 -n pcf-registry
+
+# Forward MinIO console (if needed)
+kubectl port-forward svc/minio 9001:9001 -n pcf-registry
+```
+
 
 ## Cleanup
 If you want to destroy your cluster, delete all your services/deployments and stop Minikube/Kind, run:
@@ -107,7 +125,6 @@ After changes have been pushed to a service repository, someone (usually the int
 ```bash
 git fetch sensor-data-service
 git subtree pull --prefix=sensor-data-service sensor-data-service main --squash
-
 git fetch camunda-service
 git subtree pull --prefix=camunda-service camunda-service main --squash
 
@@ -116,6 +133,8 @@ git subtree pull --prefix=proving-service proving-service main --squash
 
 git fetch verifier-service
 git subtree pull --prefix=verifier-service verifier-service main --squash
+git fetch pcf-registry
+git subtree pull --prefix=pcf-registry pcf-registry main --squash
 ```
 Repeat as needed for the services you want to update.
 

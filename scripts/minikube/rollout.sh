@@ -3,6 +3,7 @@ set -e
 
 NAMESPACE1="proving-system"
 NAMESPACE2="verifier-system"
+NAMESPACE3="pcf-registry"
 
 echo "Checking if Minikube is running..."
 if ! minikube status | grep -q "Running"; then
@@ -20,12 +21,16 @@ docker build -t sensor-data-service:latest ./sensor-data-service
 docker build -t camunda-service:latest ./camunda-service
 docker build --platform=linux/amd64 -t proving-service:latest ./proving-service
 docker build -t verifier-service:latest ./verifier-service
+docker build -t pcf-registry:latest ./pcf-registry
 
 echo "Applying updated manifests..."
 kubectl apply -f ./sensor-data-service/k8s/sensor-data-service.yaml -n $NAMESPACE1
 kubectl apply -f ./camunda-service/k8s/camunda-service.yaml -n $NAMESPACE1
 kubectl apply -f ./proving-service/k8s/proving-service.yaml -n $NAMESPACE1
 kubectl apply -f ./verifier-service/k8s/verifier-service.yaml -n $NAMESPACE2
+
+echo "Upgrading PCF-Registry..."
+helm upgrade pcf-registry ./pcf-registry/pcf-deployment-charts -n $NAMESPACE3
 
 echo "Triggering rollout restarts..."
 kubectl rollout restart deployment/sensor-data-service -n $NAMESPACE1
@@ -44,3 +49,5 @@ echo "--- $NAMESPACE1 ---"
 kubectl get pods -n $NAMESPACE1
 echo "--- $NAMESPACE2 ---"
 kubectl get pods -n $NAMESPACE2
+echo "--- $NAMESPACE3 ---"
+kubectl get pods -n $NAMESPACE3

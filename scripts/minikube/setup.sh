@@ -3,6 +3,7 @@ set -e
 
 NAMESPACE1="proving-system"
 NAMESPACE2="verifier-system"
+NAMESPACE3="pcf-registry"
 
 echo "Checking if Minikube is running..."
 if ! minikube status | grep -q "Running"; then
@@ -34,13 +35,16 @@ fi
 echo "Updating Helm repos..."
 helm repo update
 
-echo "Checking if namespace '$NAMESPACE2' exists..."
-if ! kubectl get namespace "$NAMESPACE2" >/dev/null 2>&1; then
-  echo "Adding namespace '$NAMESPACE2'"
-  kubectl create namespace "$NAMESPACE2"
-else
-  echo "Namespace '$NAMESPACE2' already exists."
-fi
+# Ensure Namespaces exist
+for ns in "$NAMESPACE1" "$NAMESPACE2" "$NAMESPACE3"; do
+  echo "Checking if namespace '$ns' exists..."
+  if ! kubectl get namespace "$ns" >/dev/null 2>&1; then
+    echo "Adding namespace '$ns'"
+    kubectl create namespace "$ns"
+  else
+    echo "Namespace '$ns' already exists."
+  fi
+done
 
 echo "Checking if Camunda is already installed..."
 if ! helm list -n $NAMESPACE1 | grep -q camunda; then
@@ -95,6 +99,21 @@ docker build -t sensor-data-service:latest ./sensor-data-service
 docker build -t camunda-service:latest ./camunda-service
 docker build --platform=linux/amd64 -t proving-service:latest ./proving-service
 docker build -t verifier-service:latest ./verifier-service
+docker build -t pcf-registry:latest ./pcf-registry
+
+echo "Installing PCF-Registry with MinIO via Helm..."
+if ! helm list -n $NAMESPACE3 | grep -q pcf-registry; then
+  echo "Installing PCF-Registry in namespace $NAMESPACE3..."
+  helm upgrade --install pcf-registry ./pcf-registry/pcf-deployment-charts -n $NAMESPACE3 --create-namespace
+else
+  echo "PCF-Registry is already installed in $NAMESPACE3."
+fi
+
+echo "Waiting for PCF-Registry pods to be ready..."
+if ! kubectl wait --for=condition=ready pod --all -n $NAMESPACE3 --timeout=300s; then
+  echo "ERROR: Timeout waiting for PCF-Registry pods to become ready"
+  exit 1
+fi
 
 echo "Deploying services to Kubernetes..."
 kubectl apply -f ./sensor-data-service/k8s/sensor-data-service.yaml -n $NAMESPACE1
@@ -102,6 +121,7 @@ kubectl apply -f ./camunda-service/k8s/camunda-service.yaml -n $NAMESPACE1
 kubectl apply -f ./proving-service/k8s/proving-service.yaml -n $NAMESPACE1
 kubectl apply -f ./verifier-service/k8s/verifier-service.yaml -n $NAMESPACE2
 
-echo "All services deployed successfully to namespaces '$NAMESPACE1' and '$NAMESPACE2'."
+echo "All services deployed successfully to namespaces '$NAMESPACE1', '$NAMESPACE2' and '$NAMESPACE3'."
 kubectl get pods -n $NAMESPACE1
 kubectl get pods -n $NAMESPACE2
+kubectl get pods -n $NAMESPACE3
