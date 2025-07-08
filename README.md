@@ -76,12 +76,11 @@ This script:
 ```bash
 kubectl get pods -n proving-system
 kubectl get pods -n verifier-system
-kubectl get pods -n pcf-registry
 kubectl logs deployment/camunda-service -n proving-system
 kubectl logs deployment/sensor-data-service -n proving-system
 kubectl logs deployment/proving-service -n proving-system
+kubectl logs deployment/pcf-registry-service -n proving-system
 kubectl logs deployment/verifier-service -n verifier-system
-kubectl logs deployment/pcf-registry -n pcf-registry
 ```
 
 ## PCF-Registry Service
@@ -90,13 +89,13 @@ After deployment, you can access the PCF-Registry services:
 
 ```bash
 # Forward the HTTP API port
-kubectl port-forward svc/pcf-registry 5002:5002 -n pcf-registry
+kubectl port-forward svc/pcf-registry-service 5002:5002 -n proving-system
 
 # Forward the gRPC port
-kubectl port-forward svc/pcf-registry 50052:50052 -n pcf-registry
+kubectl port-forward svc/pcf-registry-service 50052:50052 -n proving-system
 
 # Forward MinIO console (if needed)
-kubectl port-forward svc/minio 9001:9001 -n pcf-registry
+kubectl port-forward svc/minio-service 9001:9001 -n proving-system
 ```
 
 
@@ -114,6 +113,25 @@ This repository integrates multiple service repositories using Git Subtrees.
 
 Each service (i.e., sensor-data-service, camunda-service, and proving-service) lives in its own dedicated Git repository, but is pulled into this integration repository via subtree under its respective folder.
 This allows us to deploy and test all services together without changing how each service is developed.
+
+### Setting up Git Remotes (First-time setup)
+Before you can use the subtree commands, you need to add the service repositories as git remotes. Run these commands once after cloning the integration repository:
+
+```bash
+# Add all service repositories as remotes
+git remote add sensor-data-service https://github.com/ACP-PCVCF/sensor-data-service.git
+git remote add camunda-service https://github.com/ACP-PCVCF/camunda-service.git
+git remote add proving-service https://github.com/ACP-PCVCF/proving-service.git
+git remote add verifier-service https://github.com/ACP-PCVCF/verifier.git
+git remote add pcf-registry https://github.com/ACP-PCVCF/pcf-registry.git
+```
+
+You can verify your remotes are set up correctly by running:
+```bash
+git remote -v
+```
+
+This should show all the service repositories along with the main `origin` remote.
 
 ### Developer Workflow
 If you're working on one of the individual services:

@@ -97,12 +97,34 @@ docker build -t sensor-data-service:latest ./sensor-data-service
 docker build -t camunda-service:latest ./camunda-service
 docker build --platform=linux/amd64 -t proving-service:latest ./proving-service
 docker build -t verifier-service:latest ./verifier-service
+docker build -t pcf-registry:latest ./pcf-registry
+
+echo "Installing PCF-Registry with MinIO via Helm..."
+if ! helm list -n $NAMESPACE1 | grep -q pcf-registry; then
+  echo "Installing PCF-Registry in namespace $NAMESPACE1..."
+  helm upgrade --install pcf-registry ./pcf-registry/pcf-deployment-charts -n $NAMESPACE1
+else
+  echo "PCF-Registry is already installed in $NAMESPACE1."
+fi
+
+echo "Waiting for PCF-Registry pods to be ready..."
+if ! kubectl wait --for=condition=ready pod -l app=pcf-registry-service -n $NAMESPACE1 --timeout=300s; then
+  echo "ERROR: Timeout waiting for PCF-Registry pods to become ready"
+  exit 1
+fi
+
+echo "Waiting for MinIO pods to be ready..."
+if ! kubectl wait --for=condition=ready pod -l app=minio-server -n $NAMESPACE1 --timeout=300s; then
+  echo "ERROR: Timeout waiting for MinIO pods to become ready"
+  exit 1
+fi
 
 echo "Loading Docker images into kind cluster..."
 kind load docker-image sensor-data-service:latest --name $KIND_CLUSTER_NAME
 kind load docker-image camunda-service:latest --name $KIND_CLUSTER_NAME
 kind load docker-image proving-service:latest --name $KIND_CLUSTER_NAME
 kind load docker-image verifier-service:latest --name $KIND_CLUSTER_NAME
+kind load docker-image pcf-registry:latest --name $KIND_CLUSTER_NAME
 
 echo "Deploying services to Kubernetes..."
 kubectl apply -f ./sensor-data-service/k8s/sensor-data-service.yaml -n $NAMESPACE1

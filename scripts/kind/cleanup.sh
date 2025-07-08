@@ -9,13 +9,14 @@ KIND_CLUSTER_NAME="kind"
 echo "Uninstalling Helm releases..."
 helm uninstall camunda -n $NAMESPACE1 || echo "Helm release 'camunda' not found or already removed."
 helm uninstall kafka -n $NAMESPACE1 || echo "Helm release 'kafka' not found or already removed."
+helm uninstall pcf-registry -n $NAMESPACE1 || echo "Helm release 'pcf-registry' not found or already removed."
 
 echo "Deleting service deployments..."
-kubectl delete deployment proving-service sensor-data-service camunda-service -n $NAMESPACE1 --ignore-not-found
+kubectl delete deployment proving-service sensor-data-service camunda-service pcf-registry-service -n $NAMESPACE1 --ignore-not-found
 kubectl delete deployment verifier-service -n $NAMESPACE2 --ignore-not-found
 
 echo "Deleting services..."
-kubectl delete service proving-service sensor-data-service camunda-service -n $NAMESPACE1 --ignore-not-found
+kubectl delete service proving-service sensor-data-service camunda-service pcf-registry-service -n $NAMESPACE1 --ignore-not-found
 kubectl delete service verifier-service -n $NAMESPACE2 --ignore-not-found
 
 echo "Deleting configmaps, secrets and PVCs in $NAMESPACE1..."

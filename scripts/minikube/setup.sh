@@ -3,7 +3,6 @@ set -e
 
 NAMESPACE1="proving-system"
 NAMESPACE2="verifier-system"
-NAMESPACE3="pcf-registry"
 
 echo "Checking if Minikube is running..."
 if ! minikube status | grep -q "Running"; then
@@ -36,7 +35,7 @@ echo "Updating Helm repos..."
 helm repo update
 
 # Ensure Namespaces exist
-for ns in "$NAMESPACE1" "$NAMESPACE2" "$NAMESPACE3"; do
+for ns in "$NAMESPACE1" "$NAMESPACE2"; do
   echo "Checking if namespace '$ns' exists..."
   if ! kubectl get namespace "$ns" >/dev/null 2>&1; then
     echo "Adding namespace '$ns'"
@@ -63,7 +62,7 @@ until kubectl get pods -n $NAMESPACE1 2>/dev/null | grep -q "camunda"; do
 done
 
 echo "Waiting for all Camunda pods to be ready..."
-if ! kubectl wait --for=condition=ready pod --all -n $NAMESPACE1 --timeout=400s; then
+if ! kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=camunda-platform -n $NAMESPACE1 --timeout=400s; then
   echo "ERROR: Timeout waiting for Camunda pods to become ready"
   exit 1
 fi
@@ -102,16 +101,22 @@ docker build -t verifier-service:latest ./verifier-service
 docker build -t pcf-registry:latest ./pcf-registry
 
 echo "Installing PCF-Registry with MinIO via Helm..."
-if ! helm list -n $NAMESPACE3 | grep -q pcf-registry; then
-  echo "Installing PCF-Registry in namespace $NAMESPACE3..."
-  helm upgrade --install pcf-registry ./pcf-registry/pcf-deployment-charts -n $NAMESPACE3 --create-namespace
+if ! helm list -n $NAMESPACE1 | grep -q pcf-registry; then
+  echo "Installing PCF-Registry in namespace $NAMESPACE1..."
+  helm upgrade --install pcf-registry ./pcf-registry/pcf-deployment-charts -n $NAMESPACE1
 else
-  echo "PCF-Registry is already installed in $NAMESPACE3."
+  echo "PCF-Registry is already installed in $NAMESPACE1."
 fi
 
 echo "Waiting for PCF-Registry pods to be ready..."
-if ! kubectl wait --for=condition=ready pod --all -n $NAMESPACE3 --timeout=300s; then
+if ! kubectl wait --for=condition=ready pod -l app=pcf-registry-service -n $NAMESPACE1 --timeout=300s; then
   echo "ERROR: Timeout waiting for PCF-Registry pods to become ready"
+  exit 1
+fi
+
+echo "Waiting for MinIO pods to be ready..."
+if ! kubectl wait --for=condition=ready pod -l app=minio-server -n $NAMESPACE1 --timeout=300s; then
+  echo "ERROR: Timeout waiting for MinIO pods to become ready"
   exit 1
 fi
 
@@ -121,7 +126,6 @@ kubectl apply -f ./camunda-service/k8s/camunda-service.yaml -n $NAMESPACE1
 kubectl apply -f ./proving-service/k8s/proving-service.yaml -n $NAMESPACE1
 kubectl apply -f ./verifier-service/k8s/verifier-service.yaml -n $NAMESPACE2
 
-echo "All services deployed successfully to namespaces '$NAMESPACE1', '$NAMESPACE2' and '$NAMESPACE3'."
+echo "All services deployed successfully to namespaces '$NAMESPACE1' and '$NAMESPACE2'."
 kubectl get pods -n $NAMESPACE1
 kubectl get pods -n $NAMESPACE2
-kubectl get pods -n $NAMESPACE3

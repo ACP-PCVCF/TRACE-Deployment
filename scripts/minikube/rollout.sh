@@ -3,7 +3,6 @@ set -e
 
 NAMESPACE1="proving-system"
 NAMESPACE2="verifier-system"
-NAMESPACE3="pcf-registry"
 
 echo "Checking if Minikube is running..."
 if ! minikube status | grep -q "Running"; then
@@ -30,18 +29,20 @@ kubectl apply -f ./proving-service/k8s/proving-service.yaml -n $NAMESPACE1
 kubectl apply -f ./verifier-service/k8s/verifier-service.yaml -n $NAMESPACE2
 
 echo "Upgrading PCF-Registry..."
-helm upgrade pcf-registry ./pcf-registry/pcf-deployment-charts -n $NAMESPACE3
+helm upgrade pcf-registry ./pcf-registry/pcf-deployment-charts -n $NAMESPACE1
 
 echo "Triggering rollout restarts..."
 kubectl rollout restart deployment/sensor-data-service -n $NAMESPACE1
 kubectl rollout restart deployment/camunda-service -n $NAMESPACE1
 kubectl rollout restart deployment/proving-service -n $NAMESPACE1
+kubectl rollout restart deployment/pcf-registry-service -n $NAMESPACE1
 kubectl rollout restart deployment/verifier-service -n $NAMESPACE2
 
 echo "Waiting for updated pods to become ready..."
 kubectl rollout status deployment/sensor-data-service -n $NAMESPACE1
 kubectl rollout status deployment/camunda-service -n $NAMESPACE1
 kubectl rollout status deployment/proving-service -n $NAMESPACE1
+kubectl rollout status deployment/pcf-registry-service -n $NAMESPACE1
 kubectl rollout status deployment/verifier-service -n $NAMESPACE2
 
 echo "Rollout complete. Current pods:"
@@ -49,5 +50,3 @@ echo "--- $NAMESPACE1 ---"
 kubectl get pods -n $NAMESPACE1
 echo "--- $NAMESPACE2 ---"
 kubectl get pods -n $NAMESPACE2
-echo "--- $NAMESPACE3 ---"
-kubectl get pods -n $NAMESPACE3
