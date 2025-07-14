@@ -19,14 +19,15 @@ advertisedListeners:
 broker:
   extraConfig:
     message.max.bytes: 52428800
-
     replica.fetch.max.bytes: 52428800
-
-
     offsets.topic.replication.factor: 1
     transaction.state.log.replication.factor: 1
     transaction.state.log.min.isr: 1
 
 
 controller:
-  extraConfig: {}
+  extraConfig:
+    replica.fetch.max.bytes: 52428800
+    offsets.topic.replication.factor: 1
+    transaction.state.log.replication.factor: 1
+    transaction.state.log.min.isr: 1
