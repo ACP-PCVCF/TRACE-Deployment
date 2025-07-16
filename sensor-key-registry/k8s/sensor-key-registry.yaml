@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sensor-key-registry
+  namespace: verifier-system 
+  labels:
+    app: sensor-key-registry
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sensor-key-registry
+  template:
+    metadata:
+      labels:
+        app: sensor-key-registry
+    spec:
+      containers:
+        - name: sensor-key-registry
+          image: sensor-key-registry:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8003
+          env:
+            - name: PYTHONUNBUFFERED
+              value: "1"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8003
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8003
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sensor-key-registry
+  namespace: verifier-system 
+spec:
+  selector:
+    app: sensor-key-registry
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8003 
+  type: ClusterIP
