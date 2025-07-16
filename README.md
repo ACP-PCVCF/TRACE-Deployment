@@ -120,6 +120,7 @@ Before you can use the subtree commands, you need to add the service repositorie
 ```bash
 # Add all service repositories as remotes
 git remote add sensor-data-service https://github.com/ACP-PCVCF/sensor-data-service.git
+git remote add sensor-key-registry https://github.com/ACP-PCVCF/sensor-key-registry.git
 git remote add camunda-service https://github.com/ACP-PCVCF/camunda-service.git
 git remote add proving-service https://github.com/ACP-PCVCF/proving-service.git
 git remote add verifier-service https://github.com/ACP-PCVCF/verifier.git
@@ -144,6 +145,9 @@ After changes have been pushed to a service repository, someone (usually the int
 git fetch sensor-data-service
 git subtree pull --prefix=sensor-data-service sensor-data-service main --squash
 
+git fetch sensor-key-registry
+git subtree pull --prefix=sensor-key-registry sensor-key-registry main --squash
+
 git fetch camunda-service
 git subtree pull --prefix=camunda-service camunda-service main --squash
 
@@ -155,9 +159,6 @@ git subtree pull --prefix=verifier-service verifier-service main --squash
 
 git fetch pcf-registry
 git subtree pull --prefix=pcf-registry pcf-registry main --squash
-
-git fetch sensor-key-registry
-git subtree pull --prefix=sensor-key-registry sensor-key-registry main --squash
 ```
 Repeat as needed for the services you want to update.
 
