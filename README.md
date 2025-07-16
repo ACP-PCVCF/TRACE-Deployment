@@ -14,18 +14,25 @@ The service will be available at `http://localhost:8003`
 
 ```
 sensor-key-registry/
-├── main.py              # FastAPI application
-├── docs/                # Documentation files
-│   ├── API_USAGE.md     # API usage examples
-│   └── CURL_EXAMPLES.md # cURL command examples
-├── utils/               # Utility modules
-│   ├── copy_keys.py     # Key synchronization
-│   ├── test_api.py      # API tests
-│   ├── client_example.py # Usage examples
-│   └── integration_example.py # Integration workflows
-├── keys/                # Public key files
-├── k8s/                 # Kubernetes deployment
-└── requirements.txt     # Dependencies
+├── main.py                 # FastAPI application
+├── models/                 # Models
+│   ├── __init__.py         
+│   ├── requests.py         # Request models (Pydantic input schemas)
+│   └── responses.py        # Response models (Pydantic output schemas)
+├── routers/                # Routers
+│   ├── __init__.py         
+│   ├── health.py           # Health check endpoints
+│   └── keys.py             # Key validation and management endpoints
+├── utils/
+│   ├── __init__.py         
+│   ├── key_loader.py       # Key loading and management functions
+│   ├── client_example.py   # Usage examples
+│   ├── integration_example.py # Integration workflows
+│   └── test_api.py         # API tests
+├── docs/                   # Documentation
+├── keys/                   # Public key files
+├── k8s/                    # Kubernetes deployment
+└── requirements.txt        # Dependencies
 ```
 
 ## Documentation
