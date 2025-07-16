@@ -21,12 +21,14 @@ docker build -t camunda-service:latest ./camunda-service
 docker build --platform=linux/amd64 -t proving-service:latest ./proving-service
 docker build -t verifier-service:latest ./verifier-service
 docker build -t pcf-registry:latest ./pcf-registry
+docker build -t sensor-key-registry:latest ./sensor-key-registry
 
 echo "Applying updated manifests..."
 kubectl apply -f ./sensor-data-service/k8s/sensor-data-service.yaml -n $NAMESPACE1
 kubectl apply -f ./camunda-service/k8s/camunda-service.yaml -n $NAMESPACE1
 kubectl apply -f ./proving-service/k8s/proving-service.yaml -n $NAMESPACE1
 kubectl apply -f ./verifier-service/k8s/verifier-service.yaml -n $NAMESPACE2
+kubectl apply -f ./sensor-key-registry/k8s/sensor-key-registry.yaml -n $NAMESPACE2
 
 echo "Upgrading PCF-Registry..."
 helm upgrade pcf-registry ./pcf-registry/pcf-deployment-charts -n $NAMESPACE1
@@ -37,6 +39,7 @@ kubectl rollout restart deployment/camunda-service -n $NAMESPACE1
 kubectl rollout restart deployment/proving-service -n $NAMESPACE1
 kubectl rollout restart deployment/pcf-registry-service -n $NAMESPACE1
 kubectl rollout restart deployment/verifier-service -n $NAMESPACE2
+kubectl rollout restart deployment/sensor-key-registry -n $NAMESPACE2
 
 echo "Waiting for updated pods to become ready..."
 kubectl rollout status deployment/sensor-data-service -n $NAMESPACE1
@@ -44,6 +47,7 @@ kubectl rollout status deployment/camunda-service -n $NAMESPACE1
 kubectl rollout status deployment/proving-service -n $NAMESPACE1
 kubectl rollout status deployment/pcf-registry-service -n $NAMESPACE1
 kubectl rollout status deployment/verifier-service -n $NAMESPACE2
+kubectl rollout status deployment/sensor-key-registry -n $NAMESPACE2
 
 echo "Rollout complete. Current pods:"
 echo "--- $NAMESPACE1 ---"

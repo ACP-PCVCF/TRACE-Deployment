@@ -143,6 +143,7 @@ After changes have been pushed to a service repository, someone (usually the int
 ```bash
 git fetch sensor-data-service
 git subtree pull --prefix=sensor-data-service sensor-data-service main --squash
+
 git fetch camunda-service
 git subtree pull --prefix=camunda-service camunda-service main --squash
 
@@ -151,8 +152,12 @@ git subtree pull --prefix=proving-service proving-service main --squash
 
 git fetch verifier-service
 git subtree pull --prefix=verifier-service verifier-service main --squash
+
 git fetch pcf-registry
 git subtree pull --prefix=pcf-registry pcf-registry main --squash
+
+git fetch sensor-key-registry
+git subtree pull --prefix=sensor-key-registry sensor-key-registry main --squash
 ```
 Repeat as needed for the services you want to update.
 

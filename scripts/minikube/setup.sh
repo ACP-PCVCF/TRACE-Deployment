@@ -99,6 +99,7 @@ docker build -t camunda-service:latest ./camunda-service
 docker build --platform=linux/amd64 -t proving-service:latest ./proving-service
 docker build -t verifier-service:latest ./verifier-service
 docker build -t pcf-registry:latest ./pcf-registry
+docker build -t sensor-key-registry:latest ./sensor-key-registry
 
 echo "Installing PCF-Registry with MinIO via Helm..."
 if ! helm list -n $NAMESPACE1 | grep -q pcf-registry; then
@@ -124,6 +125,7 @@ echo "Deploying services to Kubernetes..."
 kubectl apply -f ./sensor-data-service/k8s/sensor-data-service.yaml -n $NAMESPACE1
 kubectl apply -f ./camunda-service/k8s/camunda-service.yaml -n $NAMESPACE1
 kubectl apply -f ./proving-service/k8s/proving-service.yaml -n $NAMESPACE1
+kubectl apply -f ./sensor-key-registry/k8s/sensor-key-registry.yaml -n $NAMESPACE2
 kubectl apply -f ./verifier-service/k8s/verifier-service.yaml -n $NAMESPACE2
 
 echo "All services deployed successfully to namespaces '$NAMESPACE1' and '$NAMESPACE2'."

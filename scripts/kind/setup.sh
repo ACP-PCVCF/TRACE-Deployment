@@ -98,6 +98,7 @@ docker build -t camunda-service:latest ./camunda-service
 docker build --platform=linux/amd64 -t proving-service:latest ./proving-service
 docker build -t verifier-service:latest ./verifier-service
 docker build -t pcf-registry:latest ./pcf-registry
+docker build -t sensor-key-registry:latest ./sensor-key-registry
 
 echo "Installing PCF-Registry with MinIO via Helm..."
 if ! helm list -n $NAMESPACE1 | grep -q pcf-registry; then
