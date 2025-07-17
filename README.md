@@ -22,6 +22,8 @@ The system implements established industry standards including **iLEAP** (Integr
 
 TRACE consists of several interconnected microservices:
 
+![System Architecture](data/images/System-Architecture.png)
+
 ### Core Services
 
 1. **Camunda Service** (Python)
@@ -46,20 +48,19 @@ TRACE consists of several interconnected microservices:
 5. **Sensor Key Registry** (Python/FastAPI)
    - Manages and validates RSA public keys for sensor authentication
    - Ensures only trusted sensors can contribute data
-   - Provides key verification services
+   - Provides REST API for key verification services
 
 6. **PCF Registry** (Python)
    - Stores and manages Product Carbon Footprint (PCF) proofs
    - Provides both REST and gRPC APIs for proof storage/retrieval
    - Integrates with MinIO for distributed file storage
 
-### Technical Foundations
+### Emission Calculation Model
 
-- **Zero-Knowledge Proofs**: RISC0 zkVM enables privacy-preserving computation verification
-- **Cryptographic Security**: RSA digital signatures ensure data authenticity
-- **Process Management**: Camunda 8 provides robust workflow orchestration
-- **Container Orchestration**: Kubernetes deployment with Helm charts
-- **Messaging**: Apache Kafka for asynchronous service communication
+The system implements a comprehensive emission calculation model based on:
+- **Transport Operations Centers (TOC)**: Road, rail, air, and sea transport modes
+- **Hub Operations Centers (HOC)**: Warehousing and logistics hubs
+- **Transport Chain Elements (TCE)**: Individual transport segments with mass and distance data
 
 ## 🚀 Getting Started
 
@@ -101,28 +102,6 @@ For detailed setup instructions, see [Setup Documentation](docs/setup-instructio
 
 - **[Setup Instructions](docs/setup-instructions.md)** - Complete system setup guide
 - **[Update Instructions](docs/update-instructions.md)** - Service update and maintenance procedures
-
-## Architecture Overview
-
-![System Architecture](data/images/System-Architecture.png)
-
-## 🔬 Technical Deep Dive
-
-### Zero-Knowledge Proof Workflow
-
-1. **Data Collection**: Sensor data is collected and digitally signed
-2. **Proof Generation**: RISC0 zkVM generates proofs for emission calculations
-3. **Verification**: Independent verifier validates proofs and signatures
-4. **Aggregation**: Proofs can be composed and chained across transport stages
-5. **Registry Storage**: Verified proofs are stored in the PCF registry
-
-### Emission Calculation Model
-
-The system implements a comprehensive emission calculation model based on:
-- **Transport Operations Centers (TOC)**: Road, rail, air, and sea transport modes
-- **Hub Operations Centers (HOC)**: Warehousing and logistics hubs
-- **Transport Chain Elements (TCE)**: Individual transport segments with mass and distance data
-
 
 ## 🤝 Contributing
 
