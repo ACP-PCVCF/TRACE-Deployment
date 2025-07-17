@@ -24,26 +24,7 @@ git clone https://github.com/ACP-PCVCF/TRACE.git
 cd TRACE
 ```
 
-### 2. Configure Git Subtree Remotes
-
-The TRACE system uses Git subtrees to integrate multiple service repositories. Set up the remote repositories for all services:
-
-```bash
-# Add all service repositories as remotes
-git remote add sensor-data-service https://github.com/ACP-PCVCF/sensor-data-service.git
-git remote add sensor-key-registry https://github.com/ACP-PCVCF/sensor-key-registry.git
-git remote add camunda-service https://github.com/ACP-PCVCF/camunda-service.git
-git remote add proving-service https://github.com/ACP-PCVCF/proving-service.git
-git remote add verifier-service https://github.com/ACP-PCVCF/verifier.git
-git remote add pcf-registry https://github.com/ACP-PCVCF/pcf-registry.git
-```
-
-Verify the remotes are configured correctly:
-```bash
-git remote -v
-```
-
-### 3. Start the Cluster and Install Camunda
+### 2. Start the Cluster and Deploy Services
 
 Choose either Minikube or Kind for your local Kubernetes cluster and run the appropriate setup script:
 
@@ -65,7 +46,7 @@ This script will:
 - Deploy all TRACE services
 - Configure necessary networking
 
-### 4. Configure Port Forwarding
+### 3. Configure Port Forwarding
 
 After the cluster is running, you need to set up port forwarding to access the services from your local machine.
 
@@ -151,23 +132,5 @@ kubectl logs deployment/pcf-registry-service -n proving-system
 kubectl logs deployment/verifier-service -n verifier-system
 ```
 
-## System Architecture Overview
-
-The TRACE system consists of the following main components:
-
-- **Camunda Service** - Workflow orchestration and process management
-- **Sensor Data Service** - Handles sensor data collection and processing
-- **Sensor Key Registry** - Manages sensor authentication keys
-- **Proving Service** - Manages cryptographic proofs and verification
-- **Verifier Service** - Independent verification of proofs and claims
-- **PCF Registry** - Product Carbon Footprint registry we use to upload and download proofs
-
-## Next Steps
-
-Once your system is set up and running:
-
-1. Explore the Camunda Operate interface to understand process flows
-2. Review the individual service documentation for advanced configuration
-3. Set up monitoring and logging for production use
 
 For information on updating services and maintaining your installation, see the [Update Instructions](./update-instructions.md) documentation.
