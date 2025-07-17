@@ -20,7 +20,7 @@ TRACE consists of several interconnected microservices:
 
 ### Core Services
 
-1. **Camunda Service** (Python)
+1. **Business Process Service/Camunda Service** (Python)
    - Orchestrates workflow processes for transport carbon tracking
    - Manages BPMN workflows and task coordination
    - Integrates with all system components
@@ -44,7 +44,7 @@ TRACE consists of several interconnected microservices:
    - Ensures only trusted sensors can contribute data
    - Provides REST API for key verification services
 
-6. **PCF Registry** (Python)
+6. **PCF Registry** (Python/Flask)
    - Stores and manages Product Carbon Footprint (PCF) proofs
    - Provides both REST and gRPC APIs for proof storage/retrieval
    - Integrates with MinIO for distributed file storage
