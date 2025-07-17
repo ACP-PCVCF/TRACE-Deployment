@@ -1,11 +1,5 @@
 # TRACE - Trusted Real-time Assessment of Chained Emissions
 
-TRACE is a zero-knowledge proof-based system for verifiable Product Carbon Footprint tracking in logistics operations. The system enables trusted, privacy-preserving verification of transport emission data using cutting-edge cryptographic techniques and adheres to international standards for carbon footprint calculation and reporting.
-
----
-
-## 🎯 Overview
-
 TRACE addresses the critical challenge of verifiable Product Carbon Footprint (PCF) tracking in modern logistics operations and supply chains. By leveraging zero-knowledge proofs and cryptographic verification techniques, the system ensures data integrity while maintaining privacy and enabling efficient aggregation of emission data across complex transport networks.
 
 The system implements established industry standards including **iLEAP** (Integrating Logistics Emissions and PCFs) and **GLEC** (Global Logistics Emissions Council) frameworks to ensure standardized and reliable carbon footprint calculations for logistics operations.
