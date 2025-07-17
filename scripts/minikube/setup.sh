@@ -93,6 +93,9 @@ if ! kubectl wait --for=condition=complete job/create-kafka-topics -n $NAMESPACE
   exit 1
 fi
 
+echo "Configuring Kafka broker message size limits..."
+kubectl run kafka-config-all --rm -it --restart=Never --image=bitnami/kafka --namespace=proving-system -- bash -c "for broker in 0 1 2; do kafka-configs.sh --bootstrap-server kafka.proving-system.svc.cluster.local:9092 --entity-type brokers --entity-name \$broker --alter --add-config message.max.bytes=52428800; done"
+
 echo "Building Docker images..."
 docker build -t sensor-data-service:latest ./sensor-data-service 
 docker build -t camunda-service:latest ./camunda-service
