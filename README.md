@@ -20,31 +20,31 @@ TRACE consists of several interconnected microservices:
 
 ### Core Services
 
-1. **Business Process Service/Camunda Service** (Python)
+1. **[Business Process Service](https://github.com/ACP-PCVCF/camunda-service)** (Python)
    - Orchestrates workflow processes for transport carbon tracking
    - Manages BPMN workflows and task coordination
    - Integrates with all system components
 
-2. **Proving Service** (Rust/RISC0)
+2. **[Proving Service](https://github.com/ACP-PCVCF/proving-service)** (Rust/RISC0)
    - Generates zero-knowledge proofs for carbon footprint calculations
    - Verifies previous proofs and aggregates emission data
    - Implements Transport Chain Element (TCE) emission calculations
 
-3. **Verifier Service** (Rust)
+3. **[Verifier Service](https://github.com/ACP-PCVCF/verifier)** (Rust)
    - Independent verification of ZK proofs and digital signatures
    - Validates cryptographic receipts and emission claims
    - Provides gRPC API for external verification
 
-4. **Sensor Data Service** (Python/FastAPI)
+4. **[Sensor Data Service](https://github.com/ACP-PCVCF/sensor-data-service)** (Python/FastAPI)
    - Simulates real-world vehicle sensors for demonstration
    - Generates signed sensor data with distance measurements
 
-5. **Sensor Key Registry** (Python/FastAPI)
+5. **[Sensor Key Registry](https://github.com/ACP-PCVCF/sensor-key-registry)** (Python/FastAPI)
    - Manages and validates RSA public keys for sensor authentication
    - Ensures only trusted sensors can contribute data
    - Provides REST API for key verification services
 
-6. **PCF Registry** (Python/Flask)
+6. **[PCF Registry](https://github.com/ACP-PCVCF/pcf-registry)** (Python/Flask)
    - Stores and manages Product Carbon Footprint (PCF) proofs
    - Provides both REST and gRPC APIs for proof storage/retrieval
    - Integrates with MinIO for distributed file storage

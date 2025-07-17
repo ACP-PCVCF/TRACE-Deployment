@@ -20,7 +20,25 @@ If you're working on an individual service:
 
 When service changes need to be integrated:
 
-#### 1. Update Individual Services
+#### 1. Configure Git Subtree Remotes (First-time only)
+
+If you haven't already set up the Git remotes for the service repositories, configure them first:
+
+```bash
+git remote add sensor-data-service https://github.com/ACP-PCVCF/sensor-data-service.git
+git remote add sensor-key-registry https://github.com/ACP-PCVCF/sensor-key-registry.git
+git remote add camunda-service https://github.com/ACP-PCVCF/camunda-service.git
+git remote add proving-service https://github.com/ACP-PCVCF/proving-service.git
+git remote add verifier-service https://github.com/ACP-PCVCF/verifier.git
+git remote add pcf-registry https://github.com/ACP-PCVCF/pcf-registry.git
+```
+
+Verify the remotes are configured correctly:
+```bash
+git remote -v
+```
+
+#### 2. Update Individual Services
 
 Pull the latest changes from specific service repositories:
 
@@ -50,7 +68,7 @@ git fetch pcf-registry
 git subtree pull --prefix=pcf-registry pcf-registry main --squash
 ```
 
-#### 2. Update All Services at Once
+#### 3. Update All Services at Once
 
 For convenience, you can update all services using the provided script:
 
