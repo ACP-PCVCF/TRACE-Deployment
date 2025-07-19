@@ -7,7 +7,7 @@ NAMESPACE2="verifier-system"
 echo "Checking if Minikube is running..."
 if ! minikube status | grep -q "Running"; then
   echo "Starting Minikube..."
-  minikube start --memory=8192 --cpus=4 --driver=docker
+  minikube start --memory=16384 --cpus=6 --driver=docker
 else
   echo "Minikube is already running."
 fi
