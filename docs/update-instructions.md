@@ -164,6 +164,28 @@ kubectl rollout restart deployment/verifier-service -n verifier-system
 kubectl rollout restart deployment/sensor-key-registry -n proving-system
 ```
 
+## Pushing Changes Back to Services
+
+### Push Service Changes to Original Repositories
+
+If you've made changes to service files within the integration repository, you can push them back to their original repositories:
+
+```bash
+# Push changes from specific services back to their repositories
+git subtree push --prefix=sensor-data-service sensor-data-service main
+git subtree push --prefix=sensor-key-registry sensor-key-registry main
+git subtree push --prefix=camunda-service camunda-service main
+git subtree push --prefix=proving-service proving-service main
+git subtree push --prefix=verifier-service verifier-service main
+git subtree push --prefix=pcf-registry pcf-registry main
+```
+
+**Note**: If the remote repository has new commits, you may need to pull first:
+```bash
+git subtree pull --prefix=<service-name> <service-name> main --squash
+git subtree push --prefix=<service-name> <service-name> main
+```
+
 ## Working with Different Branches
 
 ### Using Different Service Branches
