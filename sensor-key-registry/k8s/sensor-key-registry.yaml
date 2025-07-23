@@ -17,8 +17,8 @@ spec:
     spec:
       containers:
         - name: sensor-key-registry
-          image: sensor-key-registry:latest
-          imagePullPolicy: Never
+          image: ghcr.io/acp-pcvcf/sensor-key-registry:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8003
           env:

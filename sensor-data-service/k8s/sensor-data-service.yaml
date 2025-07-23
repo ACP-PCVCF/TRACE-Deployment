@@ -15,8 +15,8 @@ spec:
     spec:
       containers:
         - name: sensor
-          image: sensor-data-service:latest
-          imagePullPolicy: Never
+          image: ghcr.io/acp-pcvcf/sensor-data-service:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
 ---

@@ -96,13 +96,13 @@ fi
 echo "Configuring Kafka broker message size limits..."
 kubectl run kafka-config-all --rm -it --restart=Never --image=bitnami/kafka --namespace=proving-system -- bash -c "for broker in 0 1 2; do kafka-configs.sh --bootstrap-server kafka.proving-system.svc.cluster.local:9092 --entity-type brokers --entity-name \$broker --alter --add-config message.max.bytes=52428800; done"
 
-echo "Building Docker images..."
-docker build -t sensor-data-service:latest ./sensor-data-service 
-docker build -t camunda-service:latest ./camunda-service
-docker build --platform=linux/amd64 -t proving-service:latest ./proving-service
-docker build -t verifier-service:latest ./verifier-service
-docker build -t pcf-registry:latest ./pcf-registry
-docker build -t sensor-key-registry:latest ./sensor-key-registry
+echo "Pulling Docker images from registry..."
+docker pull ghcr.io/acp-pcvcf/sensor-data-service:latest
+docker pull ghcr.io/acp-pcvcf/camunda-service:latest
+docker pull ghcr.io/acp-pcvcf/proving-service:latest
+docker pull ghcr.io/acp-pcvcf/verifier:latest
+docker pull ghcr.io/acp-pcvcf/pcf-registry:latest
+docker pull ghcr.io/acp-pcvcf/sensor-key-registry:latest
 
 echo "Installing PCF-Registry with MinIO via Helm..."
 if ! helm list -n $NAMESPACE1 | grep -q pcf-registry; then
