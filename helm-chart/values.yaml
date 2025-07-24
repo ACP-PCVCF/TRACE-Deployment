@@ -1,0 +1,17 @@
+image:
+  registry: "ghcr.io/acp-pcvcf"
+  repository: "sensor-data-service"
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+service:
+  name: sensor-data-service
+  port: 8080
+  targetPort: 8080
+
+deployment:
+  name: sensor-data-service
+  replicas: 1
+  containerPort: 8080
+
+namespace: proving-system
