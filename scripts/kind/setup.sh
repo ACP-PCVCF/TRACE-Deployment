@@ -3,7 +3,7 @@ set -e
 
 NAMESPACE1="proving-system"
 NAMESPACE2="verifier-system"
-KIND_CLUSTER_NAME="kind"
+KIND_CLUSTER_NAME="TRACE"
 
 echo "Checking if kind cluster '$KIND_CLUSTER_NAME' exists..."
 if ! kind get clusters | grep -q "^$KIND_CLUSTER_NAME$"; then

@@ -4,7 +4,7 @@ set -e
 
 NAMESPACE1="proving-system"
 NAMESPACE2="verifier-system"
-KIND_CLUSTER_NAME="kind"
+KIND_CLUSTER_NAME="TRACE"
 
 echo "Uninstalling Helm releases..."
 helm uninstall camunda -n $NAMESPACE1 || echo "Helm release 'camunda' not found or already removed."
