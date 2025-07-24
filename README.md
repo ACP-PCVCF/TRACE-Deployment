@@ -77,8 +77,17 @@ Ensure you have the following tools installed:
    ```
 
 2. **Deploy the system**
+   
+   Choose one of the following deployment options:
+
+   **Option A: Minikube with Helm Charts**
    ```bash
-   ./scripts/minikube/setup.sh
+   ./scripts/minikube/setup-helm.sh
+   ```
+
+   **Option B: Kind with Helm Charts**
+   ```bash
+   ./scripts/kind/setup-helm.sh
    ```
 
 3. **Access the services**

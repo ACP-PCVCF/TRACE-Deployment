@@ -26,21 +26,23 @@ cd TRACE
 
 ### 2. Start the Cluster and Deploy Services
 
-Choose either Minikube or Kind for your local Kubernetes cluster and run the appropriate setup script:
+Choose your preferred Kubernetes cluster and deployment method:
 
-**For Minikube:**
+#### Helm Chart Deployments
+
+**For Minikube with Helm Charts:**
 ```bash
-chmod +x ./scripts/minikube/setup.sh
-./scripts/minikube/setup.sh
+chmod +x ./scripts/minikube/setup-helm.sh
+./scripts/minikube/setup-helm.sh
 ```
 
-**For Kind:**
+**For Kind with Helm Charts:**
 ```bash
-chmod +x ./scripts/kind/setup.sh
-./scripts/kind/setup.sh
+chmod +x ./scripts/kind/setup-helm.sh
+./scripts/kind/setup-helm.sh
 ```
 
-This script will:
+These setup scripts will perform the following operations:
 - Start your Kubernetes cluster (Minikube/Kind)
 - Create namespaces (`proving-system` and `verifier-system`)
 - Add Helm repositories (Camunda and Bitnami)
@@ -48,8 +50,15 @@ This script will:
 - Install Kafka messaging system
 - Configure Kafka topics and message size limits
 - Pull latest Docker images from registry
-- Install PCF Registry with MinIO storage
 - Deploy all TRACE services to appropriate namespaces
+
+**Alternative: Kubernetes Manifest Deployment**
+
+You can also use the standard Kubernetes manifest deployment scripts:
+- `./scripts/kind/setup.sh` for Kind clusters
+- `./scripts/minikube/setup.sh` for Minikube clusters
+
+**Note:** Even with manifest deployments, Helm is still required for installing Kafka and Camunda Platform components.
 
 ### 3. Configure Port Forwarding
 
