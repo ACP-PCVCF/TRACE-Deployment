@@ -57,6 +57,9 @@ else
   echo "Camunda is already installed in $NAMESPACE1."
 fi
 
+echo "Waiting for Camunda pods to be created..."
+sleep 30
+
 echo "Waiting for Camunda pods to be ready..."
 kubectl wait --for=condition=ready pod --all -n $NAMESPACE1 --timeout=600s || {
   echo "Warning: Some Camunda pods may not be ready yet, continuing..."
