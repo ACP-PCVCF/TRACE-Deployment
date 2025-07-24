@@ -9,19 +9,21 @@ echo "================================================="
 echo "Using branch: $BRANCH"
 echo ""
 
-# Define all service repositories
-declare -A SERVICES
-SERVICES[sensor-data-service]="https://github.com/ACP-PCVCF/sensor-data-service.git"
-SERVICES[camunda-service]="https://github.com/ACP-PCVCF/camunda-service.git"
-SERVICES[proving-service]="https://github.com/ACP-PCVCF/proving-service.git"
-SERVICES[verifier-service]="https://github.com/ACP-PCVCF/verifier.git"
-SERVICES[pcf-registry]="https://github.com/ACP-PCVCF/pcf-registry.git"
-SERVICES[sensor-key-registry]="https://github.com/ACP-PCVCF/sensor-key-registry.git"
+# Define all service repositories (compatible with bash 3.2+)
+SERVICES=(
+    "sensor-data-service:https://github.com/ACP-PCVCF/sensor-data-service.git"
+    "camunda-service:https://github.com/ACP-PCVCF/camunda-service.git"
+    "proving-service:https://github.com/ACP-PCVCF/proving-service.git"
+    "verifier-service:https://github.com/ACP-PCVCF/verifier.git"
+    "pcf-registry:https://github.com/ACP-PCVCF/pcf-registry.git"
+    "sensor-key-registry:https://github.com/ACP-PCVCF/sensor-key-registry.git"
+)
 
 echo "Step 1: Adding Git Remotes"
 echo "--------------------------"
-for service in "${!SERVICES[@]}"; do
-    repo_url="${SERVICES[$service]}"
+for service_entry in "${SERVICES[@]}"; do
+    service="${service_entry%%:*}"
+    repo_url="${service_entry#*:}"
     
     # Check if remote already exists
     if git remote get-url "$service" >/dev/null 2>&1; then
@@ -36,7 +38,8 @@ done
 echo ""
 echo "Step 2: Fetching All Remotes"
 echo "-----------------------------"
-for service in "${!SERVICES[@]}"; do
+for service_entry in "${SERVICES[@]}"; do
+    service="${service_entry%%:*}"
     echo "Fetching all branches for $service..."
     if git fetch "$service" --prune; then
         echo "Fetched all branches for $service"
@@ -49,7 +52,8 @@ done
 echo ""
 echo "Step 3: Pulling Subtrees"
 echo "------------------------"
-for service in "${!SERVICES[@]}"; do
+for service_entry in "${SERVICES[@]}"; do
+    service="${service_entry%%:*}"
     echo "Processing subtree for $service (branch: $BRANCH)..."
     
     # Check if subtree directory already exists
@@ -85,13 +89,3 @@ ls -la | grep "^d" | grep -E "(sensor-data-service|camunda-service|proving-servi
 echo ""
 echo "✅ Setup complete! All subtrees have been configured."
 echo ""
-echo "Usage examples:"
-echo "  ./scripts/setup-subtrees.sh           # Use main branch (default)"
-echo "  ./scripts/setup-subtrees.sh develop   # Use develop branch"
-echo "  ./scripts/setup-subtrees.sh feature/xyz # Use a specific feature branch"
-echo ""
-echo "To update individual subtrees in the future:"
-echo "  git fetch <service-name> --all"
-echo "  git subtree pull --prefix=<service-name> <service-name> <branch> --squash"
-echo ""
-echo "Or run this script again to update all subtrees at once."
