@@ -41,10 +41,15 @@ chmod +x ./scripts/kind/setup.sh
 ```
 
 This script will:
-- Start your Kubernetes cluster
+- Start your Kubernetes cluster (Minikube/Kind)
+- Create namespaces (`proving-system` and `verifier-system`)
+- Add Helm repositories (Camunda and Bitnami)
 - Install Camunda Platform
-- Deploy all TRACE services
-- Configure necessary networking
+- Install Kafka messaging system
+- Configure Kafka topics and message size limits
+- Pull latest Docker images from registry
+- Install PCF Registry with MinIO storage
+- Deploy all TRACE services to appropriate namespaces
 
 ### 3. Configure Port Forwarding
 
@@ -79,7 +84,7 @@ Access Camunda Operate at: http://localhost:8081
 In the Camunda Modeler application:
 
 1. Open your BPMN files for e.g.:
-   - `origin.bpmn`
+   - `Origin.bpmn`
    - `tsp.bpmn`
    - `Case_1 Kopie.bpmn`
    - `Case_2 Kopie.bpmn`
@@ -130,6 +135,9 @@ kubectl logs deployment/pcf-registry-service -n proving-system
 
 # Verifier service logs
 kubectl logs deployment/verifier-service -n verifier-system
+
+# Sensor key registry service logs
+kubectl logs deployment/sensor-key-registry -n verifier-system
 ```
 
 

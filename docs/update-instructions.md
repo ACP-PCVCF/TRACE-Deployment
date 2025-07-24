@@ -6,6 +6,23 @@ This guide covers how to update services, deploy changes, and maintain your TRAC
 
 The TRACE system uses Git subtrees to integrate multiple service repositories. This allows individual services to be developed independently while maintaining a unified deployment and testing environment.
 
+## Docker Registry Integration
+
+All service repositories are configured with CI/CD pipelines that automatically build and push Docker images to the GitHub Container Registry (`ghcr.io/acp-pcvcf/`) whenever changes are committed to the main branch. This means:
+
+- **Automatic Updates**: When developers push changes to any service repository, new Docker images are automatically built and published
+- **Always Latest**: The `:latest` tag always contains the most recent version of each service
+- **No Local Building**: The integration repository pulls pre-built images instead of building locally, ensuring consistency and faster deployments
+- **Immediate Availability**: Updated images are available for deployment as soon as the CI/CD pipeline completes
+
+Available images:
+- `ghcr.io/acp-pcvcf/sensor-data-service:latest`
+- `ghcr.io/acp-pcvcf/camunda-service:latest`
+- `ghcr.io/acp-pcvcf/proving-service:latest`
+- `ghcr.io/acp-pcvcf/verifier:latest`
+- `ghcr.io/acp-pcvcf/pcf-registry:latest`
+- `ghcr.io/acp-pcvcf/sensor-key-registry:latest`
+
 ## Service Update Workflow
 
 ### For Service Developers
@@ -14,7 +31,8 @@ If you're working on an individual service:
 
 1. **Work in the original service repository** - Continue your normal development workflow
 2. **Commit and push changes** to the service's main branch (or appropriate feature branch)
-3. **Notify the integrator** when changes are ready to be pulled into the integration repository
+3. **Automatic Docker registry update** - CI/CD pipelines automatically build and push updated Docker images to `ghcr.io/acp-pcvcf/` registry
+4. **Notify the integrator** when changes are ready to be pulled into the integration repository
 
 ### For Integration Maintainers
 
@@ -77,30 +95,6 @@ chmod +x ./scripts/setup-subtrees.sh
 ./scripts/setup-subtrees.sh
 ```
 
-## Deploying Updates
-
-### Quick Rollout
-
-After updating service code, deploy the changes to your cluster:
-
-**For Minikube:**
-```bash
-chmod +x ./scripts/minikube/rollout.sh
-./scripts/minikube/rollout.sh
-```
-
-**For Kind:**
-```bash
-chmod +x ./scripts/kind/rollout.sh
-./scripts/kind/rollout.sh
-```
-
-The rollout script performs the following actions:
-- Starts Minikube/Kind (if not running)
-- Switches to the correct Docker context
-- Builds the Docker images for all services
-- Applies the Kubernetes manifests
-- Updates running deployments
 
 ### Manual Update Process
 
@@ -126,16 +120,17 @@ eval $(minikube docker-env)
 docker context use default
 ```
 
-#### 3. Build Updated Images
+#### 3. Pull Updated Images
 
 ```bash
-# Build all service images
-docker build -t camunda-service:latest ./camunda-service
-docker build -t sensor-data-service:latest ./sensor-data-service
-docker build -t proving-service:latest ./proving-service
-docker build -t pcf-registry:latest ./pcf-registry
-docker build -t verifier-service:latest ./verifier-service
-docker build -t sensor-key-registry:latest ./sensor-key-registry
+# Pull all service images from registry
+# Note: These images are automatically updated when changes are pushed to service repositories
+docker pull ghcr.io/acp-pcvcf/sensor-data-service:latest
+docker pull ghcr.io/acp-pcvcf/camunda-service:latest
+docker pull ghcr.io/acp-pcvcf/proving-service:latest
+docker pull ghcr.io/acp-pcvcf/verifier:latest
+docker pull ghcr.io/acp-pcvcf/pcf-registry:latest
+docker pull ghcr.io/acp-pcvcf/sensor-key-registry:latest
 ```
 
 #### 4. Apply Kubernetes Manifests
@@ -161,7 +156,7 @@ kubectl rollout restart deployment/sensor-data-service -n proving-system
 kubectl rollout restart deployment/proving-service -n proving-system
 kubectl rollout restart deployment/pcf-registry-service -n proving-system
 kubectl rollout restart deployment/verifier-service -n verifier-system
-kubectl rollout restart deployment/sensor-key-registry -n proving-system
+kubectl rollout restart deployment/sensor-key-registry -n verifier-system
 ```
 
 ## Pushing Changes Back to Services
@@ -211,7 +206,7 @@ git subtree pull --prefix=proving-service proving-service feature/new-proving-lo
 git subtree pull --prefix=verifier-service verifier-service feature/enhanced-verification --squash
 
 # Test and validate
-./scripts/minikube/rollout.sh
+./scripts/minikube/setup.sh
 
 # Merge when ready
 git checkout main
@@ -231,6 +226,7 @@ kubectl rollout status deployment/sensor-data-service -n proving-system
 kubectl rollout status deployment/proving-service -n proving-system
 kubectl rollout status deployment/pcf-registry-service -n proving-system
 kubectl rollout status deployment/verifier-service -n verifier-system
+kubectl rollout status deployment/sensor-key-registry -n verifier-system
 
 # Check pod status
 kubectl get pods -n proving-system
@@ -248,6 +244,7 @@ kubectl logs deployment/sensor-data-service -n proving-system --tail=50
 kubectl logs deployment/proving-service -n proving-system --tail=50
 kubectl logs deployment/pcf-registry-service -n proving-system --tail=50
 kubectl logs deployment/verifier-service -n verifier-system --tail=50
+kubectl logs deployment/sensor-key-registry -n verifier-system --tail=50
 
 # Test service endpoints (if port-forwarding is active)
 curl -f http://localhost:5002/health  # PCF Registry health check
@@ -266,6 +263,7 @@ kubectl rollout undo deployment/sensor-data-service -n proving-system
 kubectl rollout undo deployment/proving-service -n proving-system
 kubectl rollout undo deployment/pcf-registry-service -n proving-system
 kubectl rollout undo deployment/verifier-service -n verifier-system
+kubectl rollout undo deployment/sensor-key-registry -n verifier-system
 ```
 
 ### Git-level Rollback
@@ -283,7 +281,7 @@ git revert <commit-hash>
 git reset --hard <commit-hash>
 
 # Redeploy after Git rollback
-./scripts/minikube/rollout.sh
+./scripts/minikube/setup.sh
 ```
 
 For initial setup instructions, see the [Setup Instructions](./setup-instructions.md) documentation.
