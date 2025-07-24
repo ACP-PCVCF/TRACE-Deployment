@@ -1,0 +1,41 @@
+image:
+  registry: "ghcr.io/acp-pcvcf"
+  repository: "sensor-key-registry"
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+service:
+  name: sensor-key-registry
+  port: 80
+  targetPort: 8003
+  type: ClusterIP
+
+deployment:
+  name: sensor-key-registry
+  replicas: 1
+  containerPort: 8003
+
+environment:
+  pythonUnbuffered: "1"
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+healthCheck:
+  readiness:
+    path: /
+    port: 8003
+    initialDelaySeconds: 10
+    periodSeconds: 5
+  liveness:
+    path: /
+    port: 8003
+    initialDelaySeconds: 30
+    periodSeconds: 10
+
+namespace: verifier-system
