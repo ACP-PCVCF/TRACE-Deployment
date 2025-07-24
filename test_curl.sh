@@ -3,8 +3,8 @@
 echo "Testing Key Registry API with cURL"
 echo "=================================="
 
-# Read the public key and escape it for JSON
-KEY_CONTENT=$(cat keys/key_0_public.pem | sed ':a;N;$!ba;s/\n/\\n/g')
+# Read the public key and properly escape it for JSON
+KEY_CONTENT=$(cat keys/key_0_public.pem | awk '{printf "%s\\n", $0}' | sed 's/\\n$//')
 
 echo "Using key_0_public.pem for validation..."
 echo ""
