@@ -92,12 +92,12 @@ Access Camunda Operate at: http://localhost:8081
 
 In the Camunda Modeler application:
 
-1. Open your BPMN files for e.g.:
+1. Open your BPMN files for e.g. in `camunda-service/data/bpmn`:
    - `Origin.bpmn`
    - `tsp.bpmn`
-   - `Case_1 Kopie.bpmn`
-   - `Case_2 Kopie.bpmn`
-   - `Case_3 Kopie.bpmn`
+   - `Amazing Company 1.bpmn`
+   - `Amazing Company 2.bpmn`
+   - `Amazing Company 3.bpmn`
 
 2. Select **Camunda 8 → Self-Managed**
 
@@ -108,7 +108,7 @@ In the Camunda Modeler application:
 ### 2. Deploy and Start Processes
 
 1. Click **Deploy Current Diagram** in Camunda Modeler
-2. Start the process in Camunda Modeler
+2. Start the process (`Origin.bpmn`) in Camunda Modeler
 3. Monitor progress in Camunda Operate (http://localhost:8081/operate)
 
 ## Verification and Monitoring
