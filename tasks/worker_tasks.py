@@ -6,6 +6,7 @@ from pyzeebe import ZeebeWorker, ZeebeClient, Job
 
 from utils.error_handling import on_error
 from utils.logging_utils import log_task_start, log_task_completion
+from utils.data_utils import calculate_pcf
 
 from models.proofing_document import ProofResponse, ProofingDocument
 from services.database import HocTocService
@@ -15,6 +16,7 @@ from services.proving_service import ProofingService
 from services.product_footprint import ProductFootprintService
 from services.logistics_operation_service import LogisticsOperationService
 from services.pcf_registry_service import PCFRegistryService
+
 
 
 class CamundaWorkerTasks:
@@ -60,6 +62,21 @@ class CamundaWorkerTasks:
                          exception_handler=on_error, timeout_ms=600000)(self.consume_proof_response)
         self.worker.task(task_type="get_proof_from_pcf_registry",
                          exception_handler=on_error)(self.get_proof_from_pcf_registry)
+        self.worker.task(task_type="upload_proof_to_pcf_registry",
+                         exception_handler=on_error)(self.upload_proof_to_pcf_registry)
+        
+    def upload_proof_to_pcf_registry(self, proofing_document: dict) -> dict:
+        log_task_start("upload_proof_to_pcf_registry")
+
+        proofing_document = ProofingDocument.model_validate(proofing_document)
+        proof = proofing_document.proof[-1]
+        proof = ProofResponse.model_validate(proof)
+
+        self.pcf_registry_service.upload_proofing_document(
+            proofing_document.productFootprint.id, proof)
+
+        log_task_completion("upload_proof_to_pcf_registry")
+        return {"proof_upload_status": "upload_successful", "proofing_document_id": proofing_document.productFootprint.id}
 
     def get_proof_from_pcf_registry(self, previous_product_footprint_id) -> dict:
         log_task_start("get_proof_from_pcf_registry")
@@ -100,16 +117,6 @@ class CamundaWorkerTasks:
 
         proofing_document.proof.append(proof_response)
         updated_proofing_document = proofing_document.model_dump()
-
-        # Save to file
-        import json
-        import os
-        file_path = "data/proof_documents_examples/proof_response.json"
-        os.makedirs(os.path.dirname(file_path), exist_ok=True)
-        
-        with open(file_path, 'w') as f:
-            json.dump(updated_proofing_document, f, indent=2)
-        print(f"Saved updated proofing document to: {file_path}")
 
         log_task_completion("consume_proof_response")
         return {
@@ -214,6 +221,34 @@ class CamundaWorkerTasks:
         log_task_completion("send_to_proofing_service")
 
         return {"proof_send_status": "send_successful"}
+    
+    def calculate_pcf_value(self, proofing_document: dict, previous_product_footprint_id=None) -> dict:
+        log_task_start("calculate_pcf_value")
+
+
+        proofing_document = ProofingDocument.model_validate(proofing_document)
+
+        previous_proofs = []
+        if previous_product_footprint_id:
+            intern_registry_id = f"intern_pcf_registry_{previous_product_footprint_id}"
+            print(f"Downloading previous proof from internal registry with ID: {intern_registry_id}")
+
+            proof_response_content = self.pcf_registry_service.download_proof_response(intern_registry_id)
+            if proof_response_content:
+                proof_response_obj = ProofResponse.model_validate_json(proof_response_content)
+                previous_proofs.append(proof_response_obj)
+                print(f"Added previous proof with PCF: {proof_response_obj.pcf} kg CO2e")
+            else:
+                print("No previous proof found in registry")
+
+            print("Starting PCF calculation...")
+            calculated_pcf = calculate_pcf(proofing_document, previous_proofs if previous_proofs else None)
+            print(f"Successfully calculated PCF: {calculated_pcf} kg CO2e")
+
+            log_task_completion("calculate_pcf_value")
+        return {"pcf": calculated_pcf}
+
+
 
     async def notify_next_node(self, message_name: str, shipment_information: dict) -> None:
         log_task_start("notify_next_node",
