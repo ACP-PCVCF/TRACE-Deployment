@@ -1,0 +1,26 @@
+apiVersion: v2
+name: TRACE
+description: A Helm chart for Kubernetes
+dependencies:
+  
+  - name: proving-service
+    version: 0.1.0
+    repository: https://acp-pcvcf.github.io/proving-service/
+  - name: pcf-registry
+    version: 0.1.0
+    repository: https://acp-pcvcf.github.io/pcf-registry/
+  - name: camunda-service
+    version: 0.1.0
+    repository: https://acp-pcvcf.github.io/camunda-service/
+  - name: verifier-service
+    version: 0.1.0
+    repository: https://acp-pcvcf.github.io/verifier/
+  - name: sensor-key-registry
+    version: 0.1.0
+    repository: https://acp-pcvcf.github.io/sensor-key-registry/
+  - name: sensor-data-service
+    version: 0.1.1
+    repository: https://acp-pcvcf.github.io/sensor-data-service/
+type: application
+version: 0.1.0
+appVersion: "1.16.0"
