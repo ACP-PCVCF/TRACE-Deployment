@@ -1,0 +1,27 @@
+dependencies:
+- name: proving-service
+  repository: https://acp-pcvcf.github.io/proving-service/
+  version: 0.1.0
+- name: pcf-registry
+  repository: https://acp-pcvcf.github.io/pcf-registry/
+  version: 0.1.0
+- name: camunda-service
+  repository: https://acp-pcvcf.github.io/camunda-service/
+  version: 0.1.0
+- name: verifier-service
+  repository: https://acp-pcvcf.github.io/verifier/
+  version: 0.1.0
+- name: sensor-key-registry
+  repository: https://acp-pcvcf.github.io/sensor-key-registry/
+  version: 0.1.0
+- name: sensor-data-service
+  repository: https://acp-pcvcf.github.io/sensor-data-service/
+  version: 0.1.1
+- name: camunda-platform
+  repository: https://helm.camunda.io
+  version: 8.1.0
+- name: kafka
+  repository: https://charts.bitnami.com/bitnami
+  version: 32.4.0
+digest: sha256:1674d92f2384363b6d8de8a0b25d739a3ec0b47e14abbcbf39d2a12716d78300
+generated: "2025-08-21T18:08:18.958563396+02:00"
