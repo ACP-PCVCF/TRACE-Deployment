@@ -25,7 +25,7 @@ dependencies:
     version: 8.1.0 
     repository: https://helm.camunda.io
   - name: kafka
-    version: 12.4.0       
+    version: 32.4.2
     repository: https://charts.bitnami.com/bitnami
 type: application
 version: 0.1.0
