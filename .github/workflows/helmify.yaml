@@ -20,6 +20,17 @@ jobs:
         run: |
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+      - name: Add Helm repos
+        run: |
+          helm repo add proving-service https://acp-pcvcf.github.io/proving-service/
+          helm repo add pcf-registry https://acp-pcvcf.github.io/pcf-registry/
+          helm repo add camunda-service https://acp-pcvcf.github.io/camunda-service/
+          helm repo add verifier https://acp-pcvcf.github.io/verifier/
+          helm repo add sensor-key-registry https://acp-pcvcf.github.io/sensor-key-registry/
+          helm repo add sensor-data-service https://acp-pcvcf.github.io/sensor-data-service/
+          helm repo add camunda https://helm.camunda.io
+          helm repo add bitnami https://charts.bitnami.com/bitnami
+          helm repo update
 
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.6.0
