@@ -30,16 +30,12 @@ Choose your preferred Kubernetes cluster and deployment method:
 
 #### Helm Chart Deployments
 
-**For Minikube with Helm Charts:**
 ```bash
-chmod +x ./scripts/minikube/setup-helm.sh
-./scripts/minikube/setup-helm.sh
+ helm install camunda ./charts/TRACE -n proving-system  -f charts/TRACE/values.yaml --create-namespace
 ```
-
-**For Kind with Helm Charts:**
+or install it using the publicly available chart using
 ```bash
-chmod +x ./scripts/kind/setup-helm.sh
-./scripts/kind/setup-helm.sh
+helm repo add TRACE https://acp-pcvcf.github.io/TRACE-Deployment/
 ```
 
 These setup scripts will perform the following operations:
@@ -51,12 +47,6 @@ These setup scripts will perform the following operations:
 - Configure Kafka topics and message size limits
 - Pull latest Docker images from registry
 - Deploy all TRACE services to appropriate namespaces
-
-**Alternative: Kubernetes Manifest Deployment**
-
-You can also use the standard Kubernetes manifest deployment scripts:
-- `./scripts/kind/setup.sh` for Kind clusters
-- `./scripts/minikube/setup.sh` for Minikube clusters
 
 **Note:** Even with manifest deployments, Helm is still required for installing Kafka and Camunda Platform components.
 
