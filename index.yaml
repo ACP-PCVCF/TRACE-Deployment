@@ -3,6 +3,41 @@ entries:
   TRACE:
   - apiVersion: v2
     appVersion: 1.16.0
+    created: "2025-08-30T12:37:48.315071994Z"
+    dependencies:
+    - name: proving-service
+      repository: https://acp-pcvcf.github.io/proving-service/
+      version: 0.1.0
+    - name: pcf-registry
+      repository: https://acp-pcvcf.github.io/pcf-registry/
+      version: 0.1.0
+    - name: camunda-service
+      repository: https://acp-pcvcf.github.io/camunda-service/
+      version: 0.1.0
+    - name: verifier-service
+      repository: https://acp-pcvcf.github.io/verifier/
+      version: 0.1.0
+    - name: sensor-key-registry
+      repository: https://acp-pcvcf.github.io/sensor-key-registry/
+      version: 0.1.0
+    - name: sensor-data-service
+      repository: https://acp-pcvcf.github.io/sensor-data-service/
+      version: 0.1.1
+    - name: camunda-platform
+      repository: https://helm.camunda.io
+      version: 11.2.0
+    - name: kafka
+      repository: https://charts.bitnami.com/bitnami
+      version: 32.4.2
+    description: A Helm chart for Kubernetes
+    digest: 6ed85154409b5acc57aa0f47c47976c5b77bf4ef9be1993c54727efd54619a19
+    name: TRACE
+    type: application
+    urls:
+    - https://github.com/ACP-PCVCF/TRACE-Deployment/releases/download/TRACE-0.1.1/TRACE-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: 1.16.0
     created: "2025-08-21T22:17:07.042257662Z"
     dependencies:
     - name: proving-service
@@ -36,4 +71,4 @@ entries:
     urls:
     - https://github.com/ACP-PCVCF/TRACE-Deployment/releases/download/TRACE-0.1.0/TRACE-0.1.0.tgz
     version: 0.1.0
-generated: "2025-08-21T22:17:07.042269995Z"
+generated: "2025-08-30T12:37:48.315092212Z"
