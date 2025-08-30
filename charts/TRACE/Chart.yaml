@@ -22,7 +22,7 @@ dependencies:
     repository: https://acp-pcvcf.github.io/sensor-data-service/
   #outside dependencies
   - name: camunda-platform
-    version: 8.1.0 
+    version: 11.2.0
     repository: https://helm.camunda.io
   - name: kafka
     version: 32.4.2

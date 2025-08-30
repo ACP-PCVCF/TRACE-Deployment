@@ -6,13 +6,15 @@ metadata:
 spec:
   template:
     spec:
-      restartPolicy: OnFailure
       containers:
         - name: kafka-topic-creator
-          image: bitnami/kafka:latest
+          image: confluentinc/cp-kafka:latest
           command:
             - bash
             - -c
             - |
-              kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic shipments --partitions 1 --replication-factor 1 && \
-              kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic pcf-results --partitions 1 --replication-factor 1
+              kafka-topics --bootstrap-server camunda-kafka.proving-system.svc.cluster.local:9092 --create --if-not-exists --topic shipments --partitions 1 --replication-factor 1 && \
+              kafka-topics --bootstrap-server camunda-kafka.proving-system.svc.cluster.local:9092 --create --if-not-exists --topic pcf-results --partitions 1 --replication-factor 1
+      restartPolicy: OnFailure
+
+

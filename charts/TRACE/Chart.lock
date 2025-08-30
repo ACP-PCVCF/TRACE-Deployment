@@ -19,9 +19,9 @@ dependencies:
   version: 0.1.1
 - name: camunda-platform
   repository: https://helm.camunda.io
-  version: 8.1.0
+  version: 11.2.0
 - name: kafka
   repository: https://charts.bitnami.com/bitnami
   version: 32.4.2
-digest: sha256:b0f80a40897327596e516da2b39bfecd6272ea586f2648160ac6184a9b476b0c
-generated: "2025-08-22T00:04:52.566961734+02:00"
+digest: sha256:e7ca686bb136c2017379bb76ade426e19fbb0fcf0bfdd45851ea0f16db6396f2
+generated: "2025-08-29T17:29:42.506489+02:00"

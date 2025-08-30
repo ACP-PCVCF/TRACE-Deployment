@@ -1,72 +1,119 @@
-kraft:
-  enabled: true
-zookeeper:
-  enabled: false
-
-
-auth:
-  enabled: false
-allowPlaintextListener: true
-listeners:
-  client:
-    protocol: PLAINTEXT
-advertisedListeners:
-  client:
-    name: PLAINTEXT
-    address: kafka.proving-system.svc.cluster.local
-    port: 9092
-
-broker:
-  extraConfig:
-    message.max.bytes: 52428800
-    replica.fetch.max.bytes: 52428800
-    offsets.topic.replication.factor: 1
-    transaction.state.log.replication.factor: 1
-    transaction.state.log.min.isr: 1
-
-
-controller:
-  extraConfig:
-    replica.fetch.max.bytes: 52428800
-    offsets.topic.replication.factor: 1
-    transaction.state.log.replication.factor: 1
-    transaction.state.log.min.isr: 1
-
 global:
+  namespace: proving-system
+  security:
+    allowInsecureImages: true
   identity:
     auth:
-      # Disable the Identity authentication for local development
-      # it will fall back to basic-auth: demo/demo as default user
       enabled: false
 
-# Disable identity as part of the Camunda core
-identity:
-  enabled: false
+camunda-platform:
+  # Disable identity as part of the Camunda core
+  identity:
+    enabled: false
+  
+  # Disable keycloak
+  identityKeycloak:
+    enabled: false
 
-# Disable keycloak
-identityKeycloak:
-  enabled: false
+  optimize:
+    enabled: false
 
-optimize:
-  enabled: false
+  # Reduce for Zeebe and Gateway the configured replicas and with that the required resources
+  # to get it running locally
+  
+  zeebe:
+    clusterSize: 1
+    partitionCount: 1
+    replicationFactor: 1
+    pvcSize: 10Gi
+  
+  zeebeGateway:
+    replicas: 1
+  
+  connectors:
+    enabled: false
 
-# Reduce for Zeebe and Gateway the configured replicas and with that the required resources
-# to get it running locally
-zeebe:
-  clusterSize: 1
-  partitionCount: 1
-  replicationFactor: 1
-  pvcSize: 10Gi
+  elasticsearch:
+    master:
+      replicaCount: 1
+      # Request smaller persistent volumes.
+      persistence:
+        size: 15Gi
 
-zeebeGateway:
-  replicas: 1
+kafka:
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/kafka
+    tag: 4.0.0-debian-12-r10
+  namespaceOverride: proving-system
 
-connectors:
-  enabled: false
+  kraft:
+    enabled: true
+  zookeeper:
+    enabled: false
 
-elasticsearch:
-  master:
-    replicaCount: 1
-    # Request smaller persistent volumes.
-    persistence:
-      size: 15Gi
+  auth:
+    enabled: false
+  allowPlaintextListener: true
+
+  listeners:
+    client:
+      protocol: PLAINTEXT
+
+  advertisedListeners:
+    client:
+      name: PLAINTEXT
+      address: camunda-kafka.proving-system.svc.cluster.local
+      port: 9092
+
+  extraEnvVars:
+    - name: ALLOW_PLAINTEXT_LISTENER
+      value: "yes"
+  broker:
+    extraConfig:
+      message.max.bytes: 52428800
+      replica.fetch.max.bytes: 52428800
+      offsets.topic.replication.factor: 1
+      transaction.state.log.replication.factor: 1
+      transaction.state.log.min.isr: 1
+
+  controller:
+    extraConfig:
+      replica.fetch.max.bytes: 52428800
+      offsets.topic.replication.factor: 1
+      transaction.state.log.replication.factor: 1
+      transaction.state.log.min.isr: 1
+
+camunda-service:
+  environment:
+    zeebe:
+      host: "camunda-zeebe-gateway"
+      port: 26500
+
+    proofingService:
+      host: "proofing-service"
+      port: 3000
+
+    sensorService:
+      host: "sensor-data-service"
+      port: 8080
+
+    verifierService:
+      host: "verifier-service.verifier-system.svc.cluster.local"
+      port: 80
+
+    pcfRegistryServer:
+      host: "pcf-registry-service.proving-system.svc.cluster.local"
+      port: 50052
+
+    kafka:
+      host: "camunda-kafka.proving-system.svc.cluster.local"
+      port: 9092
+
+    logLevel: "INFO"
+    activitiesOutputPath: "/app/activities.json"
+    requestTimeout: "30"
+   
+proving-service:
+  environment:
+    kafkaBroker: "camunda-kafka.proving-system.svc.cluster.local:9092"
